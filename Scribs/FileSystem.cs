@@ -28,7 +28,7 @@ namespace Scribs {
 
         public static E GetItem<E>(this IFileSystemFactory<E> factory, User user, string path)
             where E : class, IListFileItem {
-            var segments = path.Split('/').Skip(1).ToArray();
+            var segments = path.Split('/').Skip(path.StartsWith("/") ? 1 : 0).ToArray();
             if (segments[0] != SHARE_FILE || segments[1] != user.Name)
                 throw new HttpResponseException(HttpStatusCode.Unauthorized);
             if (user.Directory.Exists()) {

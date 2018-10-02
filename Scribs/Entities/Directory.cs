@@ -31,8 +31,8 @@ namespace Scribs {
     public class CloudFileDirectoryFactory : IFileSystemFactory<CloudFileDirectory> {
         public CloudFileDirectory GetCloudReference(Directory dir, string relativePath) {
             var reference = dir.CloudItem.GetDirectoryReference(relativePath);
-            if (!reference.ExistsAsync().Result)
-                throw new Exception("Directory not found");
+            //if (!reference.ExistsAsync().Result)
+            //    throw new Exception("Directory not found");
             return reference;
         }
     }
