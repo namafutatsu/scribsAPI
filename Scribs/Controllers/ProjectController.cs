@@ -18,7 +18,7 @@ namespace Scribs.Controllers {
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         public IEnumerable<DirectoryModel> GetAll() {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
