@@ -153,11 +153,11 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\DirectoryController.cs" />
     <Compile Include="Controllers\FileController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AccessController.cs" />
-    <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Entities\Directory.cs" />
     <Compile Include="Entities\Sql\Access.cs" />
     <Compile Include="Entities\Sql\User.cs" />
+    <Compile Include="Entities\File.cs" />
     <Compile Include="FileSystem.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Filters\AddChallengeOnUnauthorizedResult.cs" />
@@ -174,7 +174,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DbModel.cs" />
     <Compile Include="Models\DirectoryModel.cs" />
-    <Compile Include="Models\FSItemModel.cs" />
+    <Compile Include="Models\ItemModel.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Models\FileModel.cs" />
     <Compile Include="Models\AccessModel.cs" />
@@ -183,7 +183,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

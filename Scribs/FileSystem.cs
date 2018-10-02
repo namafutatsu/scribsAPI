@@ -1,6 +1,7 @@
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.File;
+using System;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
@@ -9,71 +10,57 @@ namespace Scribs {
 
     public static class FileSystem {
 
-        const string SHARE_FILE = "scribs";
-
-        public enum Type {
-            Directory,
-            File
+        public const string SHARE_FILE = "scribs";
+        private static Directory rootDir;
+        public static Directory RootDir {
+            get {
+                if (rootDir == null) {
+                    var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+                    var fileClient = storageAccount.CreateCloudFileClient();
+                    var share = fileClient.GetShareReference(SHARE_FILE);
+                    if (!share.Exists())
+                        throw new System.Exception("This file share does not exist");
+                    rootDir = new Directory(share.GetRootDirectoryReference());
+                }
+                return rootDir;
+            }
         }
 
-        public static string[] GetSegments(string path) {
-            return path.Split('/').Skip(1).ToArray();
-        }
-
-        public static bool IsAuthoziedPath(User user, string path) {
-            var segments = GetSegments(path);
-            return segments[0] == SHARE_FILE && segments[1] == user.Name;
-        }
-
-        public static string GetRelativePath(string path) {
-            return GetSegments(path).Skip(2).Aggregate((a, b) => a + "/" + b);
-        }
-
-
-        public static IListFileItem GetFSItem(User user, string path, Type type) {
-            if (!IsAuthoziedPath(user, path))
+        public static E GetItem<E>(this IFileSystemFactory<E> factory, User user, string path)
+            where E : class, IListFileItem {
+            var segments = path.Split('/').Skip(1).ToArray();
+            if (segments[0] != SHARE_FILE || segments[1] != user.Name)
                 throw new HttpResponseException(HttpStatusCode.Unauthorized);
-            var userDir = GetUserDir(user.Name);
-            if (userDir.Exists()) {
-                var relativePath = GetRelativePath(path);
-                if (type == Type.Directory)
-                    return userDir.GetDirectoryReference(relativePath);
-                else
-                    return userDir.GetFileReference(relativePath);
+            if (user.Directory.Exists()) {
+                var relativePath = segments.Skip(2).Aggregate((a, b) => a + "/" + b);
+                return factory.GetCloudReference(user.Directory, relativePath);
             }
             return null;
         }
+    }
 
-        public static CloudFileDirectory GetDirectory(User user, string path) {
-            return (CloudFileDirectory)GetFSItem(user, path, Type.Directory);
+    public abstract class FileSystemItem<E, F> where F : IFileSystemFactory<E>, new() where E : class, IListFileItem {
+        private static F cloudFactory;
+        public static F CloudFactory {
+            get {
+                if (cloudFactory == null)
+                    cloudFactory = new F();
+                return cloudFactory;
+            }
         }
+        public E CloudItem { get; }
+        public Uri Uri => CloudItem?.Uri;
+        public string Path => Uri.AbsolutePath;
+        public string Name => CloudItem?.Uri.Segments.Last();
+        public FileSystemItem(User user, string path) {
+            CloudItem = CloudFactory.GetItem(user, path);
+        }
+        public FileSystemItem(E cloudItem) {
+            CloudItem = cloudItem;
+        }
+    }
 
-        public static CloudFile GetFile(User user, string path) {
-            return (CloudFile)GetFSItem(user, path, Type.File);
-        }
-
-        public static string GetFileContent(User user, string path) {
-            var file = GetFile(user, path);
-            return file.DownloadTextAsync().Result;
-        }
-
-        private static CloudFileDirectory GetRootDir() {
-            var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-            var fileClient = storageAccount.CreateCloudFileClient();
-            var share = fileClient.GetShareReference(SHARE_FILE);
-            if (!share.Exists())
-                throw new System.Exception("This file share does not exist");
-            return share.GetRootDirectoryReference();
-        }
-
-        private static CloudFileDirectory GetUserDir(string username) {
-            var rootDir = GetRootDir();
-            return rootDir.GetDirectoryReference(username);
-        }
-
-        public static void CreateUserDir(User user) {
-            var userDir = GetUserDir(user.Name);
-            userDir.CreateIfNotExistsAsync();
-        }
+    public interface IFileSystemFactory<E> where E : class, IListFileItem {
+        E GetCloudReference(Directory dir, string relativePath);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Web.Http;
 using Scribs.Models;
 using Scribs.Filters;
-using System;
 
 namespace Scribs.Controllers {
 
@@ -9,12 +8,10 @@ namespace Scribs.Controllers {
     public class DirectoryController : AccessController {
 
         [HttpPost]
-        public DirectoryModel Get(FSItemModel model) {
+        public DirectoryModel Get(DirectoryModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                var directory = FileSystem.GetDirectory(user, model.Path);
-                if (directory == null)
-                    throw new Exception("Répertoire non trouvé");
+                var directory = new Directory(user, model.Path);
                 return DirectoryModelUtils.CreateDirectoryModel(directory, model.Read ?? false);
             }
         }

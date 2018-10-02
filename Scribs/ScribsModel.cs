@@ -2,8 +2,7 @@ using System.Data.Entity;
 
 namespace Scribs {
     public partial class ScribsDbContext : DbContext {
-        public ScribsDbContext()
-            : base("name=ScribsModel") {
+        public ScribsDbContext() : base("name=ScribsModel") {
             Database.SetInitializer(new MigrateDatabaseToLatestVersion<ScribsDbContext, Migrations.Configuration>());
         }
 

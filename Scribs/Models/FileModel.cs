@@ -1,17 +1,17 @@
-﻿using Microsoft.WindowsAzure.Storage.File;
-using System.Linq;
-
-namespace Scribs.Models {
-    public class FileModel : FSItemModel {
+﻿namespace Scribs.Models {
+    public class FileModel : ItemModel {
         public string Text { get; set; }
     }
 
     public static class FileModelUtils {
-        public static FileModel CreateFileModel(CloudFile file, bool read = false) {
+        public static FileModel CreateFileModel(File file, bool read = false) {
             var model = new FileModel {
-                Path = file.Uri.AbsolutePath,
-                Name = file.Uri.Segments.Last()
+                Path = file.Path,
+                Name = file.Name,
+                Discriminator = Discriminator.File
             };
+            if (file.CloudItem.Metadata.ContainsKey("Index"))
+                model.Index = int.Parse(file.CloudItem.Metadata["Index"]);
             if (read)
                 model.Text = file.DownloadTextAsync().Result;
             return model;

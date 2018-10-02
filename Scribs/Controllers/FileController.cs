@@ -1,7 +1,7 @@
-﻿using System.Web.Http;
+﻿using System.Threading.Tasks;
+using System.Web.Http;
 using Scribs.Models;
 using Scribs.Filters;
-using System;
 
 namespace Scribs.Controllers {
 
@@ -9,13 +9,20 @@ namespace Scribs.Controllers {
     public class FileController : AccessController {
 
         [HttpPost]
-        public FileModel Get(FSItemModel model) {
+        public FileModel Get(FileModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                var file = FileSystem.GetFile(user, model.Path);
-                if (file == null)
-                    throw new Exception("Fichier non trouvé");
-                return FileModelUtils.CreateFileModel(file, true);
+                var file = new File(user, model.Path);
+                return FileModelUtils.CreateFileModel(file, model.Read ?? false);
+            }
+        }
+
+        [HttpPost]
+        public Task<string> Read(FileModel model) {
+            using (var db = new ScribsDbContext()) {
+                var user = GetUser(db);
+                var file = new File(user, model.Path);
+                return file.DownloadTextAsync();
             }
         }
     }
