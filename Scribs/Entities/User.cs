@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Scribs {
 
     public partial class User {
@@ -12,8 +15,10 @@ namespace Scribs {
             }
         }
 
-        public void CreateDirectory() {
-            Directory.CreateIfNotExistsAsync();
-        }
+        public void CreateDirectory() => Directory.CreateIfNotExistsAsync();
+
+        public IEnumerable<Project> GetProjects() => Directory.Directories.Select(o => Project.GetFromDirectory(o));
+
+        public Project GetProject(string name) => Project.GetFromDirectory(Directory.GetDirectory(name));
     }
 }

@@ -9,7 +9,7 @@
         public string Path { get; set; }
         public string Name { get; set; }
         public bool? Read { get; set; }
-        public Discriminator Discriminator { get; set; }
-        public int Index { get; set; }
+        public Discriminator? Discriminator { get; set; }
+        public int? Index { get; set; }
     }
 }

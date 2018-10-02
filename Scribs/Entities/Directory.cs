@@ -6,11 +6,9 @@ using Microsoft.WindowsAzure.Storage.File;
 namespace Scribs {
 
     public class Directory : FileSystemItem<CloudFileDirectory, CloudFileDirectoryFactory> {
-        public Directory(CloudFileDirectory cloudItem) : base(cloudItem) {
-        }
+        public Directory(CloudFileDirectory cloudItem) : base(cloudItem) { }
 
-        public Directory(User user, string path) : base(user, path) {
-        }
+        public Directory(User user, string path) : base(user, path) { }
 
         public IEnumerable<File> Files =>
             CloudItem.ListFilesAndDirectories().Select(o => o as CloudFile).Where(o => o != null)
@@ -27,6 +25,7 @@ namespace Scribs {
         public bool Exists() => CloudItem.Exists();
 
         public void CreateIfNotExistsAsync() => CreateIfNotExistsAsync();
+        public IEnumerable<IListFileItem> ListFilesAndDirectories() => ListFilesAndDirectories();
     }
 
     public class CloudFileDirectoryFactory : IFileSystemFactory<CloudFileDirectory> {

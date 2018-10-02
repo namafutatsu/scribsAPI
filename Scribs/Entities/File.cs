@@ -5,15 +5,11 @@ using Microsoft.WindowsAzure.Storage.File;
 namespace Scribs {
 
     public class File : FileSystemItem<CloudFile, CloudFileFactory> {
-        public File(CloudFile cloudItem) : base(cloudItem) {
-        }
+        public File(CloudFile cloudItem) : base(cloudItem) { }
 
-        public File(User user, string path) : base(user, path) {
-        }
+        public File(User user, string path) : base(user, path) { }
 
-        public Task<string> DownloadTextAsync() {
-            return CloudItem.DownloadTextAsync();
-        }
+        public Task<string> DownloadTextAsync() => CloudItem.DownloadTextAsync();
     }
 
     public class CloudFileFactory : IFileSystemFactory<CloudFile> {

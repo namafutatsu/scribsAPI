@@ -151,9 +151,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="Controllers\DirectoryController.cs" />
     <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\AccessController.cs" />
+    <Compile Include="Entities\Project.cs" />
     <Compile Include="Entities\Directory.cs" />
     <Compile Include="Entities\Sql\Access.cs" />
     <Compile Include="Entities\Sql\User.cs" />
