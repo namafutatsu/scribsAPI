@@ -12,10 +12,10 @@ namespace Scribs.Models {
                 Path = directory.Uri.AbsolutePath,
                 Name = directory.Uri.Segments.Last(),
                 Items = new List<ItemModel>(),
-                Discriminator = Discriminator.Directory
+                Discriminator = Discriminator.Directory,
+                Index = directory.Index,
+                Key = directory.Key,
             };
-            if (directory.CloudItem.Metadata.ContainsKey("Index"))
-                model.Index = int.Parse(directory.CloudItem.Metadata["Index"]);
             model.Items.AddRange(directory.Directories.Select(o => CreateDirectoryModel(o, read)));
             model.Items.AddRange(directory.Files.Select(o => FileModelUtils.CreateFileModel(o, read)));
             return model;

@@ -175,6 +175,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DbModel.cs" />
+    <Compile Include="Models\InstructionModel.cs" />
     <Compile Include="Models\ProjectModel.cs" />
     <Compile Include="Models\DirectoryModel.cs" />
     <Compile Include="Models\ItemModel.cs" />

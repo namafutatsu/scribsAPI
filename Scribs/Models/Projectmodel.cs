@@ -11,7 +11,9 @@ namespace Scribs.Models {
                 Path = directory.Uri.AbsolutePath,
                 Name = directory.Uri.Segments.Last(),
                 Items = new List<ItemModel>(),
-                Discriminator = Discriminator.Directory
+                Discriminator = Discriminator.Directory,
+                Index = directory.Index,
+                Key = directory.Key
             };
             if (directory.CloudItem.Metadata.ContainsKey("Index"))
                 model.Index = int.Parse(directory.CloudItem.Metadata["Index"]);

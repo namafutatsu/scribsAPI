@@ -39,7 +39,22 @@ namespace Scribs {
         }
     }
 
-    public abstract class FileSystemItem<E, F> where F : IFileSystemFactory<E>, new() where E : class, IListFileItem {
+    public interface IFileSystemItem {
+        string Key { get; set; }
+        int Index { get; set; }
+        bool Exists();
+        void Create();
+        void Delete();
+        void Copy(string path);
+    }
+
+    public abstract class FileSystemItem<E, F>: IFileSystemItem where F : IFileSystemFactory<E>, new() where E : class, IListFileItem {
+        public FileSystemItem(User user, string path) {
+            CloudItem = CloudFactory.GetItem(user, path);
+        }
+        public FileSystemItem(E cloudItem) {
+            CloudItem = cloudItem;
+        }
         private static F cloudFactory;
         public static F CloudFactory {
             get {
@@ -52,12 +67,12 @@ namespace Scribs {
         public Uri Uri => CloudItem?.Uri;
         public string Path => Uri.AbsolutePath;
         public string Name => CloudItem?.Uri.Segments.Last();
-        public FileSystemItem(User user, string path) {
-            CloudItem = CloudFactory.GetItem(user, path);
-        }
-        public FileSystemItem(E cloudItem) {
-            CloudItem = cloudItem;
-        }
+        public abstract string Key { get; set; }
+        public abstract int Index { get; set; }
+        public abstract bool Exists();
+        public abstract void Create();
+        public abstract void Delete();
+        public abstract void Copy(string path);
     }
 
     public interface IFileSystemFactory<E> where E : class, IListFileItem {

@@ -8,7 +8,9 @@
             var model = new FileModel {
                 Path = file.Path,
                 Name = file.Name,
-                Discriminator = Discriminator.File
+                Discriminator = Discriminator.File,
+                Index = file.Index,
+                Key = file.Key
             };
             if (file.CloudItem.Metadata.ContainsKey("Index"))
                 model.Index = int.Parse(file.CloudItem.Metadata["Index"]);

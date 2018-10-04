@@ -25,7 +25,8 @@ namespace Scribs.Controllers {
                 var projects = user.GetProjects();
                 return projects.Select(o => new ProjectModel {
                     Name = o.Name,
-                    Path = o.Path
+                    Path = o.Path,
+                    Key = o.Key
                 });
             }
         }
@@ -41,8 +42,35 @@ namespace Scribs.Controllers {
                 return new ProjectModel {
                     Name = model.Name,
                     Path = project.Path,
-                    Discriminator = Discriminator.Directory
+                    Discriminator = Discriminator.Directory,
+                    Key = project.Key
                 };
+            }
+        }
+
+        [HttpPost]
+        IEnumerable<InstructionModel> Update(IList<InstructionModel> models) {
+            using (var db = new ScribsDbContext()) {
+                var user = GetUser(db);
+                foreach (var model in models) {
+                    IFileSystemItem item = model.Discriminator == Discriminator.File ?
+                        (IFileSystemItem)new File(user, model.Path) : new Directory(user, model.Path);
+                    switch (model.Type) {
+                        case (InstructionType.Create):
+                            item.Create();
+                            item.Key = model.Key;
+                            item.Index = model.Index;
+                            break;
+                        case InstructionType.Delete:
+                            item.Delete();
+                            break;
+                        case InstructionType.Move:
+                            item.Index = model.Index;
+                            break;
+                    }
+                    model.Done = true;
+                }
+                return models;
             }
         }
     }
