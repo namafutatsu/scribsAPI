@@ -5,6 +5,10 @@ namespace Scribs.Models {
     public class ProjectModel : DirectoryModel {
     }
 
+    public class UpdateModel {
+        public IList<InstructionModel> Instructions { get; set; }
+    }
+
     public static class ProjectModelUtils {
         public static ProjectModel CreateProjectModel(Directory directory, bool read = false) {
             var model = new ProjectModel {

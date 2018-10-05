@@ -45,7 +45,7 @@ namespace Scribs {
         bool Exists();
         void Create();
         void Delete();
-        void Copy(string path);
+        void CopyFrom(IFileSystemItem source);
     }
 
     public abstract class FileSystemItem<E, F>: IFileSystemItem where F : IFileSystemFactory<E>, new() where E : class, IListFileItem {
@@ -63,6 +63,19 @@ namespace Scribs {
                 return cloudFactory;
             }
         }
+        private User user;
+        public User User {
+            get {
+                if (user == null) {
+                    var segments = Path.Split('/').Skip(Path.StartsWith("/") ? 1 : 0).ToArray();
+                    using (var db = new ScribsDbContext()) {
+                        string userName = segments[1];
+                        user = db.Users.SingleOrDefault(o => o.Name == userName);
+                    }
+                }
+                return user;
+            }
+        }
         public E CloudItem { get; }
         public Uri Uri => CloudItem?.Uri;
         public string Path => Uri.AbsolutePath;
@@ -72,7 +85,7 @@ namespace Scribs {
         public abstract bool Exists();
         public abstract void Create();
         public abstract void Delete();
-        public abstract void Copy(string path);
+        public abstract void CopyFrom(IFileSystemItem source);
     }
 
     public interface IFileSystemFactory<E> where E : class, IListFileItem {

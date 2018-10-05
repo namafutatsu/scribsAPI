@@ -49,28 +49,30 @@ namespace Scribs.Controllers {
         }
 
         [HttpPost]
-        IEnumerable<InstructionModel> Update(IList<InstructionModel> models) {
+        public UpdateModel Update(UpdateModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                foreach (var model in models) {
-                    IFileSystemItem item = model.Discriminator == Discriminator.File ?
-                        (IFileSystemItem)new File(user, model.Path) : new Directory(user, model.Path);
-                    switch (model.Type) {
+                foreach (var instruction in model.Instructions) {
+                    var item = instruction.Discriminator == Discriminator.File ?
+                        (IFileSystemItem)new File(user, instruction.Path) : new Directory(user, instruction.Path);
+                    switch (instruction.Type) {
                         case (InstructionType.Create):
                             item.Create();
-                            item.Key = model.Key;
-                            item.Index = model.Index;
+                            item.Key = instruction.Key;
+                            item.Index = instruction.Index;
                             break;
                         case InstructionType.Delete:
                             item.Delete();
                             break;
                         case InstructionType.Move:
-                            item.Index = model.Index;
+                            var newItem = instruction.Discriminator == Discriminator.File ?
+                                (IFileSystemItem)new File(user, instruction.MoveToPath) : new Directory(user, instruction.MoveToPath);
+                            newItem.CopyFrom(item);
                             break;
                     }
-                    model.Done = true;
+                    instruction.Done = true;
                 }
-                return models;
+                return model;
             }
         }
     }

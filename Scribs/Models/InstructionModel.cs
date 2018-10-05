@@ -6,7 +6,7 @@
         Delete
     }
 
-    public abstract class InstructionModel {
+    public class InstructionModel {
         public InstructionType Type { get; set; }
         public string Key { get; set; }
         public string Path { get; set; }

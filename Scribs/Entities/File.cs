@@ -43,9 +43,18 @@ namespace Scribs {
         }
 
         public override bool Exists() => CloudItem.Exists();
+
         public override void Create() => CloudItem.Create(10000000);
+
         public override void Delete() => CloudItem.Delete();
-        public override void Copy(string path) => throw new NotImplementedException();
+
+        public override void CopyFrom(IFileSystemItem source) => CopyFrom(source as File);
+
+        public void CopyFrom(File source) {
+            Create();
+            CloudItem.StartCopy(source.CloudItem);
+            source.Delete();
+        }
     }
 
     public class CloudFileFactory : IFileSystemFactory<CloudFile> {

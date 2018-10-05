@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.File;
 
 namespace Scribs {
@@ -24,15 +25,28 @@ namespace Scribs {
 
         public override bool Exists() => CloudItem.Exists();
 
-        public void CreateIfNotExistsAsync() => CreateIfNotExistsAsync();
+        public void CreateIfNotExistsAsync() => CloudItem.CreateIfNotExistsAsync();
 
-        public IEnumerable<IListFileItem> ListFilesAndDirectories() => ListFilesAndDirectories();
+        public IEnumerable<IListFileItem> ListFilesAndDirectories() => CloudItem.ListFilesAndDirectories();
 
-        public override void Create() => CreateIfNotExistsAsync();
+        public override void Create() => CloudItem.CreateIfNotExistsAsync();
 
-        public override void Delete() => Delete();
+        public override void Delete() => CloudItem.Delete();
 
-        public override void Copy(string path) => throw new NotImplementedException();
+        public override void CopyFrom(IFileSystemItem source) => CopyFrom(source as Directory);
+
+        public void CopyFrom(Directory source) {
+            Create();
+            foreach (var sourceFile in source.Files) {
+                var file = new File(User, Path + "/" + sourceFile.Name);
+                file.CopyFrom(sourceFile);
+            }
+            foreach (var sourceSubDir in source.Directories) {
+                var subDir = new Directory(User, Path + "/" + sourceSubDir.Name);
+                subDir.CopyFrom(sourceSubDir);
+            }
+            source.Delete();
+        }
 
         public override string Key {
             get {
