@@ -155,11 +155,13 @@
     <Compile Include="Controllers\DirectoryController.cs" />
     <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\AccessController.cs" />
+    <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Project.cs" />
     <Compile Include="Entities\Directory.cs" />
     <Compile Include="Entities\Sql\Access.cs" />
     <Compile Include="Entities\Sql\User.cs" />
     <Compile Include="Entities\File.cs" />
+    <Compile Include="Entities\Path.cs" />
     <Compile Include="FileSystem.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Filters\AddChallengeOnUnauthorizedResult.cs" />

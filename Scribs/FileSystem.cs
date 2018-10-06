@@ -1,10 +1,8 @@
+using System.Net;
+using System.Web.Http;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.File;
-using System;
-using System.Linq;
-using System.Net;
-using System.Web.Http;
 
 namespace Scribs {
 
@@ -12,27 +10,25 @@ namespace Scribs {
 
         public const string SHARE_FILE = "scribs";
         private static Directory rootDir;
-        public static Directory RootDir {
-            get {
-                if (rootDir == null) {
-                    var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-                    var fileClient = storageAccount.CreateCloudFileClient();
-                    var share = fileClient.GetShareReference(SHARE_FILE);
-                    if (!share.Exists())
-                        throw new System.Exception("This file share does not exist");
-                    rootDir = new Directory(share.GetRootDirectoryReference());
-                }
-                return rootDir;
+        public static Directory GetRootDir(ScribsDbContext db) {
+            if (rootDir == null) {
+                var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+                var fileClient = storageAccount.CreateCloudFileClient();
+                var share = fileClient.GetShareReference(SHARE_FILE);
+                if (!share.Exists())
+                    throw new System.Exception("This file share does not exist");
+                rootDir = new Directory(db, share.GetRootDirectoryReference());
             }
+            return rootDir;
         }
 
-        public static E GetItem<E>(this IFileSystemFactory<E> factory, User user, string path)
+        public static E GetItem<E>(this IFileSystemFactory<E> factory, User user, string url)
             where E : class, IListFileItem {
-            var segments = path.Split('/').Skip(path.StartsWith("/") ? 1 : 0).ToArray();
-            if (segments[0] != SHARE_FILE || segments[1] != user.Name)
+            var path = new Path(user.db, url);
+            if (path.Share != SHARE_FILE || path.UserName != user.Name)
                 throw new HttpResponseException(HttpStatusCode.Unauthorized);
             if (user.Directory.Exists()) {
-                var relativePath = segments.Skip(2).Aggregate((a, b) => a + "/" + b);
+                var relativePath = path.Relative;
                 return factory.GetCloudReference(user.Directory, relativePath);
             }
             return null;
@@ -50,10 +46,14 @@ namespace Scribs {
 
     public abstract class FileSystemItem<E, F>: IFileSystemItem where F : IFileSystemFactory<E>, new() where E : class, IListFileItem {
         public FileSystemItem(User user, string path) {
+            db = user.db;
             CloudItem = CloudFactory.GetItem(user, path);
+            Path = new Path(db, path);
         }
-        public FileSystemItem(E cloudItem) {
+        public FileSystemItem(ScribsDbContext db, E cloudItem) {
+            this.db = db;
             CloudItem = cloudItem;
+            Path = new Path(db, cloudItem.Uri.ToString());
         }
         private static F cloudFactory;
         public static F CloudFactory {
@@ -66,26 +66,21 @@ namespace Scribs {
         private User user;
         public User User {
             get {
-                if (user == null) {
-                    var segments = Path.Split('/').Skip(Path.StartsWith("/") ? 1 : 0).ToArray();
-                    using (var db = new ScribsDbContext()) {
-                        string userName = segments[1];
-                        user = db.Users.SingleOrDefault(o => o.Name == userName);
-                    }
-                }
+                if (user == null)
+                    user = Path.User;
                 return user;
             }
         }
         public E CloudItem { get; }
-        public Uri Uri => CloudItem?.Uri;
-        public string Path => Uri.AbsolutePath;
-        public string Name => CloudItem?.Uri.Segments.Last();
+        public string Name => Path.Last;
+        public Path Path { get; set; }
         public abstract string Key { get; set; }
         public abstract int Index { get; set; }
         public abstract bool Exists();
         public abstract void Create();
         public abstract void Delete();
         public abstract void CopyFrom(IFileSystemItem source);
+        public ScribsDbContext db;
     }
 
     public interface IFileSystemFactory<E> where E : class, IListFileItem {

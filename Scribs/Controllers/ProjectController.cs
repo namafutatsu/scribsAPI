@@ -25,7 +25,7 @@ namespace Scribs.Controllers {
                 var projects = user.GetProjects();
                 return projects.Select(o => new ProjectModel {
                     Name = o.Name,
-                    Path = o.Path,
+                    Path = o.Path.ToString(),
                     Key = o.Key
                 });
             }
@@ -41,7 +41,7 @@ namespace Scribs.Controllers {
                 project.CreateDirectory();
                 return new ProjectModel {
                     Name = model.Name,
-                    Path = project.Path,
+                    Path = project.Path.ToString(),
                     Discriminator = Discriminator.Directory,
                     Key = project.Key
                 };
@@ -68,6 +68,7 @@ namespace Scribs.Controllers {
                             var newItem = instruction.Discriminator == Discriminator.File ?
                                 (IFileSystemItem)new File(user, instruction.MoveToPath) : new Directory(user, instruction.MoveToPath);
                             newItem.CopyFrom(item);
+                            newItem.Index = instruction.MoveToIndex;
                             break;
                     }
                     instruction.Done = true;

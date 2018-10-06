@@ -3,10 +3,10 @@ using Microsoft.WindowsAzure.Storage.File;
 namespace Scribs {
 
     public class Project : Directory {
-        public Project(CloudFileDirectory cloudItem) : base(cloudItem) { }
+        public Project(ScribsDbContext db, CloudFileDirectory cloudItem) : base(db, cloudItem) { }
         public Project(User user, string name) : base(user, "/" + FileSystem.SHARE_FILE + "/" + user.Name + "/" + name) { }
 
-        public static Project GetFromDirectory(Directory directory) => new Project(directory.CloudItem);
+        public static Project GetFromDirectory(ScribsDbContext db, Directory directory) => new Project(db, directory.CloudItem);
         public void CreateDirectory() => CloudItem.CreateIfNotExistsAsync();
     }
 }

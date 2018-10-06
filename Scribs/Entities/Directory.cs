@@ -1,26 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.File;
 
 namespace Scribs {
 
     public class Directory : FileSystemItem<CloudFileDirectory, CloudFileDirectoryFactory> {
-        public Directory(CloudFileDirectory cloudItem) : base(cloudItem) { }
+        public Directory(ScribsDbContext db, CloudFileDirectory cloudItem) : base(db, cloudItem) { }
 
         public Directory(User user, string path) : base(user, path) { }
 
         public IEnumerable<File> Files =>
             CloudItem.ListFilesAndDirectories().Select(o => o as CloudFile).Where(o => o != null)
-            .Select(o => new File(o));
+            .Select(o => new File(db, o));
 
         public IEnumerable<Directory> Directories =>
             CloudItem.ListFilesAndDirectories().Select(o => o as CloudFileDirectory).Where(o => o != null && !o.Name.StartsWith("."))
-            .Select(o => new Directory(o));
+            .Select(o => new Directory(db, o));
 
         public Directory GetDirectory(string name) {
-            return new Directory(CloudItem.GetDirectoryReference(name));
+            return new Directory(db, CloudItem.GetDirectoryReference(name));
         }
 
         public override bool Exists() => CloudItem.Exists();

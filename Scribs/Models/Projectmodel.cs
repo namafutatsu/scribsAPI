@@ -12,8 +12,8 @@ namespace Scribs.Models {
     public static class ProjectModelUtils {
         public static ProjectModel CreateProjectModel(Directory directory, bool read = false) {
             var model = new ProjectModel {
-                Path = directory.Uri.AbsolutePath,
-                Name = directory.Uri.Segments.Last(),
+                Path = directory.Path.ToString(),
+                Name = directory.Name,
                 Items = new List<ItemModel>(),
                 Discriminator = Discriminator.Directory,
                 Index = directory.Index,

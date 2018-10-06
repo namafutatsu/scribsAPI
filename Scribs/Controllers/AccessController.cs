@@ -29,7 +29,7 @@ namespace Scribs.Controllers {
             try {
                 var principal = RequestContext.Principal as ClaimsPrincipal;
                 var userId = int.Parse(principal.Claims.First(o => o.Type == ClaimTypes.NameIdentifier).Value);
-                return db.Users.Find(userId);
+                return Scribs.User.Factory.GetInstance(db, userId);
             } catch {
                 throw new HttpResponseException(HttpStatusCode.ExpectationFailed);
             }
@@ -69,11 +69,10 @@ namespace Scribs.Controllers {
                 user = db.Users.SingleOrDefault(o => o.Mail == model.Mail);
                 if (user != null)
                     throw new Exception("This email is already used");
-                user = new User {
-                    Name = model.Username,
-                    Password = model.Password,
-                    Mail = model.Mail
-                };
+                user = Scribs.User.Factory.CreateInstance(db);
+                user.Name = model.Username;
+                user.Password = model.Password;
+                user.Mail = model.Mail;
                 try {
                     user.CreateDirectory();
                 } catch {

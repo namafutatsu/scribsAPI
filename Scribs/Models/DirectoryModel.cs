@@ -9,8 +9,8 @@ namespace Scribs.Models {
     public static class DirectoryModelUtils {
         public static DirectoryModel CreateDirectoryModel(Directory directory, bool read = false) {
             var model = new DirectoryModel {
-                Path = directory.Uri.AbsolutePath,
-                Name = directory.Uri.Segments.Last(),
+                Path = directory.Path.ToString(),
+                Name = directory.Name,
                 Items = new List<ItemModel>(),
                 Discriminator = Discriminator.Directory,
                 Index = directory.Index,

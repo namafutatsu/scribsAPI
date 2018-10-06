@@ -5,7 +5,8 @@ using Microsoft.WindowsAzure.Storage.File;
 namespace Scribs {
 
     public class File : FileSystemItem<CloudFile, CloudFileFactory> {
-        public File(CloudFile cloudItem) : base(cloudItem) { }
+        public File(ScribsDbContext db, CloudFile cloudItem) : base(db, cloudItem) {
+        }
 
         public File(User user, string path) : base(user, path) { }
 

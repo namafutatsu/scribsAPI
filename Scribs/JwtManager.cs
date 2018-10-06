@@ -46,8 +46,7 @@ namespace Scribs {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var claims = jwtToken.Claims.ToList();
                 var claim = claims.Find(o => o.Type == "nameid");
-                var user = db.Users.Find(int.Parse(claim.Value));
-
+                var user = User.Factory.GetInstance(db, int.Parse(claim.Value));
                 access = db.Accesses.FirstOrDefault(o => o.UserId == user.Id && o.Status == Status.Active);
                 if (access == null)
                     return null;
