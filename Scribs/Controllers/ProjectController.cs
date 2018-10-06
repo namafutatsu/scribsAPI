@@ -47,34 +47,5 @@ namespace Scribs.Controllers {
                 };
             }
         }
-
-        [HttpPost]
-        public UpdateModel Update(UpdateModel model) {
-            using (var db = new ScribsDbContext()) {
-                var user = GetUser(db);
-                foreach (var instruction in model.Instructions) {
-                    var item = instruction.Discriminator == Discriminator.File ?
-                        (IFileSystemItem)new File(user, instruction.Path) : new Directory(user, instruction.Path);
-                    switch (instruction.Type) {
-                        case (InstructionType.Create):
-                            item.Create();
-                            item.Key = instruction.Key;
-                            item.Index = instruction.Index;
-                            break;
-                        case InstructionType.Delete:
-                            item.Delete();
-                            break;
-                        case InstructionType.Move:
-                            var newItem = instruction.Discriminator == Discriminator.File ?
-                                (IFileSystemItem)new File(user, instruction.MoveToPath) : new Directory(user, instruction.MoveToPath);
-                            newItem.CopyFrom(item);
-                            newItem.Index = instruction.MoveToIndex;
-                            break;
-                    }
-                    instruction.Done = true;
-                }
-                return model;
-            }
-        }
     }
 }

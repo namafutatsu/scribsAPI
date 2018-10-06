@@ -6,7 +6,7 @@ using Scribs.Filters;
 namespace Scribs.Controllers {
 
     [JwtAuthentication]
-    public class FileController : AccessController {
+    public class FileController : ItemController {
 
         [HttpPost]
         public FileModel Get(FileModel model) {
@@ -24,6 +24,10 @@ namespace Scribs.Controllers {
                 var file = new File(user, model.Path);
                 return file.DownloadTextAsync();
             }
+        }
+
+        public override IFileSystemItem GetItem(User user, string path) {
+            return new File(user, path);
         }
     }
 }

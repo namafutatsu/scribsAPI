@@ -5,7 +5,7 @@ using Scribs.Filters;
 namespace Scribs.Controllers {
 
     [JwtAuthentication]
-    public class DirectoryController : AccessController {
+    public class DirectoryController : ItemController {
 
         [HttpPost]
         public DirectoryModel Get(DirectoryModel model) {
@@ -14,6 +14,10 @@ namespace Scribs.Controllers {
                 var directory = new Directory(user, model.Path);
                 return DirectoryModelUtils.CreateDirectoryModel(directory, model.Read ?? false);
             }
+        }
+
+        public override IFileSystemItem GetItem(User user, string path) {
+            return new Directory(user, path);
         }
     }
 }
