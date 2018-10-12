@@ -1,6 +1,7 @@
 ﻿using Scribs.Models;
 using Scribs.Filters;
 using System.Web.Http;
+using System.Threading.Tasks;
 
 namespace Scribs.Controllers {
 
@@ -8,48 +9,48 @@ namespace Scribs.Controllers {
     public abstract class ItemController : AccessController {
         public abstract IFileSystemItem GetItem(User user, string path);
 
-        public void Create(User user, ItemModel model) {
+        public async Task CreateAsync(User user, ItemModel model) {
             var item = GetItem(user, model.Path);
-            item.Create();
+            await item.CreateAsync();
             item.Key = model.Key;
             item.Index = model.Index ?? 0;
         }
 
-        public void Delete(User user, ItemModel model) {
+        public Task DeleteAsync(User user, ItemModel model) {
             var file = GetItem(user, model.Path);
-            file.Delete();
+            return file.DeleteAsync();
         }
 
-        public void Move(User user, ItemModel model) {
+        public async Task MoveAsync(User user, ItemModel model) {
             var item = GetItem(user, model.Path);
             var newItem = GetItem(user, model.MoveToPath);
-            newItem.CopyFrom(item);
+            await newItem.CopyFromAsync(item);
             newItem.Index = model.MoveToIndex ?? 0;
         }
 
         [HttpPost]
-        public ResultModel Create(ItemModel model) {
+        public async Task<ResultModel> Create(ItemModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                Create(user, model);
+                await CreateAsync(user, model);
                 return new ResultModel { Success = true };
             }
         }
 
         [HttpPost]
-        public ResultModel Delete(ItemModel model) {
+        public async Task<ResultModel> Delete(ItemModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                Delete(user, model);
+                await DeleteAsync(user, model);
                 return new ResultModel { Success = true };
             }
         }
 
         [HttpPost]
-        public ResultModel Move(ItemModel model) {
+        public async Task<ResultModel> Move(ItemModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                Move(user, model);
+                await MoveAsync(user, model);
                 return new ResultModel { Success = true };
             }
         }

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
@@ -27,21 +28,18 @@ namespace Scribs {
             var path = new Path(user.db, url);
             if (path.Share != SHARE_FILE || path.UserName != user.Name)
                 throw new HttpResponseException(HttpStatusCode.Unauthorized);
-            if (user.Directory.Exists()) {
-                var relativePath = path.Relative;
-                return factory.GetCloudReference(user.Directory, relativePath);
-            }
-            return null;
+            var relativePath = path.Relative;
+            return factory.GetCloudReference(user.Directory, relativePath);
         }
     }
 
     public interface IFileSystemItem {
         string Key { get; set; }
         int Index { get; set; }
-        bool Exists();
-        void Create();
-        void Delete();
-        void CopyFrom(IFileSystemItem source);
+        Task<bool> ExistsAsync();
+        Task CreateAsync();
+        Task DeleteAsync();
+        Task CopyFromAsync(IFileSystemItem source);
     }
 
     public abstract class FileSystemItem<E, F>: IFileSystemItem where F : IFileSystemFactory<E>, new() where E : class, IListFileItem {
@@ -76,10 +74,10 @@ namespace Scribs {
         public Path Path { get; set; }
         public abstract string Key { get; set; }
         public abstract int Index { get; set; }
-        public abstract bool Exists();
-        public abstract void Create();
-        public abstract void Delete();
-        public abstract void CopyFrom(IFileSystemItem source);
+        public abstract Task<bool> ExistsAsync();
+        public abstract Task CreateAsync();
+        public abstract Task DeleteAsync();
+        public abstract Task CopyFromAsync(IFileSystemItem source);
         public ScribsDbContext db;
     }
 

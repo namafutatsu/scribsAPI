@@ -74,7 +74,7 @@ namespace Scribs.Controllers {
                 user.Password = model.Password;
                 user.Mail = model.Mail;
                 try {
-                    user.CreateDirectory();
+                    user.CreateDirectoryAsync();
                 } catch {
                     throw new Exception("Some special characters in your username are not supported");
                 }

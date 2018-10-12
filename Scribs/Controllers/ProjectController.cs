@@ -3,6 +3,7 @@ using Scribs.Models;
 using Scribs.Filters;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Scribs.Controllers {
 
@@ -10,11 +11,11 @@ namespace Scribs.Controllers {
     public class ProjectController : AccessController {
 
         [HttpPost]
-        public ProjectModel Get(ProjectModel model) {
+        public Task<ProjectModel> Get(ProjectModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var project = user.GetProject(model.Name);
-                return ProjectModelUtils.CreateProjectModel(project, model.Read ?? false);
+                return ProjectModelUtils.CreateProjectModelAsync(project, model.Read ?? false);
             }
         }
 
@@ -32,13 +33,14 @@ namespace Scribs.Controllers {
         }
 
         [HttpPost]
-        public ProjectModel Post(ProjectModel model) {
+        public async Task<ProjectModel> Post(ProjectModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var project = new Project(user, model.Name);
-                if (project.Exists())
+                bool exists = await project.ExistsAsync();
+                if (exists)
                     throw new System.Exception("This project already exists");
-                project.CreateDirectory();
+                await project.CreateDirectoryAsync();
                 return new ProjectModel {
                     Name = model.Name,
                     Path = project.Path.ToString(),

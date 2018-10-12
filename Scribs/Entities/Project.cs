@@ -1,4 +1,5 @@
 using Microsoft.WindowsAzure.Storage.File;
+using System.Threading.Tasks;
 
 namespace Scribs {
 
@@ -7,6 +8,6 @@ namespace Scribs {
         public Project(User user, string name) : base(user, "/" + FileSystem.SHARE_FILE + "/" + user.Name + "/" + name) { }
 
         public static Project GetFromDirectory(ScribsDbContext db, Directory directory) => new Project(db, directory.CloudItem);
-        public void CreateDirectory() => CloudItem.CreateIfNotExistsAsync();
+        public Task<bool> CreateDirectoryAsync() => CloudItem.CreateIfNotExistsAsync();
     }
 }

@@ -9,11 +9,11 @@ namespace Scribs.Controllers {
     public class FileController : ItemController {
 
         [HttpPost]
-        public FileModel Get(FileModel model) {
+        public Task<ItemModel> Get(FileModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var file = new File(user, model.Path);
-                return FileModelUtils.CreateFileModel(file, model.Read ?? false);
+                return FileModelUtils.CreateFileModelAsync(file, model.Read ?? false);
             }
         }
 

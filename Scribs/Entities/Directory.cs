@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.File;
 
 namespace Scribs {
@@ -11,40 +12,40 @@ namespace Scribs {
         public Directory(User user, string path) : base(user, path) { }
 
         public IEnumerable<File> Files =>
-            CloudItem.ListFilesAndDirectories().Select(o => o as CloudFile).Where(o => o != null)
+            ListFilesAndDirectories().Select(o => o as CloudFile).Where(o => o != null)
             .Select(o => new File(db, o));
 
         public IEnumerable<Directory> Directories =>
-            CloudItem.ListFilesAndDirectories().Select(o => o as CloudFileDirectory).Where(o => o != null && !o.Name.StartsWith("."))
+            ListFilesAndDirectories().Select(o => o as CloudFileDirectory).Where(o => o != null && !o.Name.StartsWith("."))
             .Select(o => new Directory(db, o));
 
         public Directory GetDirectory(string name) {
             return new Directory(db, CloudItem.GetDirectoryReference(name));
         }
 
-        public override bool Exists() => CloudItem.Exists();
+        public IEnumerable<IListFileItem> ListFilesAndDirectories() => CloudItem.ListFilesAndDirectoriesSegmentedAsync(null).GetAwaiter().GetResult().Results;
 
-        public void CreateIfNotExistsAsync() => CloudItem.CreateIfNotExistsAsync();
+        public Task<bool> CreateIfNotExistsAsync() => CloudItem.CreateIfNotExistsAsync();
 
-        public IEnumerable<IListFileItem> ListFilesAndDirectories() => CloudItem.ListFilesAndDirectories();
+        public override Task<bool> ExistsAsync() => CloudItem.ExistsAsync();
 
-        public override void Create() => CloudItem.CreateIfNotExistsAsync();
+        public override Task CreateAsync() => CloudItem.CreateIfNotExistsAsync();
 
-        public override void Delete() => CloudItem.Delete();
+        public override Task DeleteAsync() => CloudItem.DeleteAsync();
 
-        public override void CopyFrom(IFileSystemItem source) => CopyFrom(source as Directory);
+        public override Task CopyFromAsync(IFileSystemItem source) => CopyFromAsync(source as Directory);
 
-        public void CopyFrom(Directory source) {
-            Create();
+        public async Task CopyFromAsync(Directory source) {
+            await CreateAsync();
             foreach (var sourceFile in source.Files) {
                 var file = new File(User, Path + "/" + sourceFile.Name);
-                file.CopyFrom(sourceFile);
+                await file.CopyFromAsync(sourceFile);
             }
             foreach (var sourceSubDir in source.Directories) {
                 var subDir = new Directory(User, Path + "/" + sourceSubDir.Name);
-                subDir.CopyFrom(sourceSubDir);
+                await subDir.CopyFromAsync(sourceSubDir);
             }
-            source.Delete();
+            await source.DeleteAsync();
         }
 
         public override string Key {

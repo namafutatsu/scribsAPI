@@ -1,4 +1,5 @@
 ﻿using System.Web.Http;
+using System.Threading.Tasks;
 using Scribs.Models;
 using Scribs.Filters;
 
@@ -8,11 +9,11 @@ namespace Scribs.Controllers {
     public class DirectoryController : ItemController {
 
         [HttpPost]
-        public DirectoryModel Get(DirectoryModel model) {
+        public Task<ItemModel> Get(DirectoryModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var directory = new Directory(user, model.Path);
-                return DirectoryModelUtils.CreateDirectoryModel(directory, model.Read ?? false);
+                return DirectoryModelUtils.CreateDirectoryModelAsync(directory, model.Read ?? false);
             }
         }
 

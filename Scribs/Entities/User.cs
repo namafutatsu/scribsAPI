@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Scribs {
 
@@ -15,7 +16,7 @@ namespace Scribs {
             }
         }
 
-        public void CreateDirectory() => Directory.CreateIfNotExistsAsync();
+        public Task<bool> CreateDirectoryAsync() => Directory.CreateIfNotExistsAsync();
 
         public IEnumerable<Project> GetProjects() => Directory.Directories.Select(o => Project.GetFromDirectory(db, o));
 

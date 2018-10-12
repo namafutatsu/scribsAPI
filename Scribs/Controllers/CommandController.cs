@@ -1,6 +1,7 @@
 ﻿using System.Web.Http;
 using Scribs.Models;
 using Scribs.Filters;
+using System.Threading.Tasks;
 
 namespace Scribs.Controllers {
 
@@ -8,7 +9,7 @@ namespace Scribs.Controllers {
     public class CommandController : AccessController {
 
         [HttpPost]
-        public CommandSetModel Post(CommandSetModel model) {
+        public async Task<CommandSetModel> Post(CommandSetModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 foreach (var command in model.Commands) {
@@ -16,13 +17,13 @@ namespace Scribs.Controllers {
                         new FileController() : (ItemController)new DirectoryController();
                     switch (command.Type) {
                         case (Command.Create):
-                            controller.Create(user, command);
+                            await controller.CreateAsync(user, command);
                             break;
                         case Command.Delete:
-                            controller.Delete(user, command);
+                            await controller.DeleteAsync(user, command);
                             break;
                         case Command.Move:
-                            controller.Move(user, command);
+                            await controller.MoveAsync(user, command);
                             break;
                     }
                     command.Done = true;

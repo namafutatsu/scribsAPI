@@ -43,18 +43,18 @@ namespace Scribs {
             }
         }
 
-        public override bool Exists() => CloudItem.Exists();
+        public override Task<bool> ExistsAsync() => CloudItem.ExistsAsync();
 
-        public override void Create() => CloudItem.Create(10000000);
+        public override Task CreateAsync() => CloudItem.CreateAsync(10000000);
 
-        public override void Delete() => CloudItem.Delete();
+        public override Task DeleteAsync() => CloudItem.DeleteAsync();
 
-        public override void CopyFrom(IFileSystemItem source) => CopyFrom(source as File);
+        public override Task CopyFromAsync(IFileSystemItem source) => CopyFromAsync(source as File);
 
-        public void CopyFrom(File source) {
-            Create();
-            CloudItem.StartCopy(source.CloudItem);
-            source.Delete();
+        public async Task CopyFromAsync(File source) {
+            await CreateAsync();
+            await CloudItem.StartCopyAsync(source.CloudItem);
+            await source.DeleteAsync();
         }
     }
 
