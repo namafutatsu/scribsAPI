@@ -1,9 +1,9 @@
 ﻿using System.Web.Http;
-using Scribs.Models;
-using Scribs.Filters;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Scribs.Models;
+using Scribs.Filters;
 
 namespace Scribs.Controllers {
 
@@ -37,6 +37,8 @@ namespace Scribs.Controllers {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var project = new Project(user, model.Name);
+                project.Template = model.Template;
+                project.Type = (Project.Types)model.Type;
                 bool exists = await project.ExistsAsync();
                 if (exists)
                     throw new System.Exception("This project already exists");
