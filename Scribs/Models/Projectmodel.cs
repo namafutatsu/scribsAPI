@@ -6,6 +6,7 @@ namespace Scribs.Models {
     public class ProjectModel : DirectoryModel {
         public string Template { get; set; }
         public int Type { get; set; }
+        public string Description { get; set; }
     }
 
     public static class ProjectModelUtils {
@@ -18,7 +19,8 @@ namespace Scribs.Models {
                 Index = project.Index,
                 Key = project.Key,
                 Template = project.Template,
-                Type = (int)project.Type
+                Type = (int)project.Type,
+                Description = project.Description
             };
             if (project.CloudItem.Metadata.ContainsKey("Index"))
                 model.Index = int.Parse(project.CloudItem.Metadata["Index"]);

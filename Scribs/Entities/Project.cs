@@ -12,6 +12,22 @@ namespace Scribs {
             ShortStory = 1
         }
 
+        public string Description {
+            get {
+                if (CloudItem.Metadata.ContainsKey("Description"))
+                    return CloudItem.Metadata["Description"];
+                string description = "";
+                CloudItem.Metadata.Add("Description", description);
+                return description;
+            }
+            set {
+                if (CloudItem.Metadata.ContainsKey("Description"))
+                    CloudItem.Metadata["Description"] = value;
+                else
+                    CloudItem.Metadata.Add("Description", value);
+            }
+        }
+
         public string Template {
             get {
                 if (CloudItem.Metadata.ContainsKey("Template"))

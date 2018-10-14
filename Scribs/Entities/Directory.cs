@@ -19,9 +19,9 @@ namespace Scribs {
             ListFilesAndDirectories().Select(o => o as CloudFileDirectory).Where(o => o != null && !o.Name.StartsWith("."))
             .Select(o => new Directory(db, o));
 
-        public Directory GetDirectory(string name) {
-            return new Directory(db, CloudItem.GetDirectoryReference(name));
-        }
+        public Directory GetDirectory(string name) => new Directory(db, CloudItem.GetDirectoryReference(name));
+
+        public File GetFile(string name) => new File(db, CloudItem.GetFileReference(name));
 
         public IEnumerable<IListFileItem> ListFilesAndDirectories() => CloudItem.ListFilesAndDirectoriesSegmentedAsync(null).GetAwaiter().GetResult().Results;
 
