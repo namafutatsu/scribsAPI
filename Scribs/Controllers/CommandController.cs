@@ -1,7 +1,7 @@
 ﻿using System.Web.Http;
+using System.Threading.Tasks;
 using Scribs.Models;
 using Scribs.Filters;
-using System.Threading.Tasks;
 
 namespace Scribs.Controllers {
 

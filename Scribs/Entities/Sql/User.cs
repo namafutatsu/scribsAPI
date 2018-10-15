@@ -23,5 +23,6 @@ namespace Scribs {
         public string Password { get; set; }
 
         public ICollection<Access> Accesses { get; set; }
+        public ICollection<SheetTemplate> SheetTemplates { get; set; }
     }
 }

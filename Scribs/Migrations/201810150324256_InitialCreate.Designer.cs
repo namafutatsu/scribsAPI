@@ -13,7 +13,7 @@ namespace Scribs.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201810011010570_InitialCreate"; }
+            get { return "201810150324256_InitialCreate"; }
         }
         
         string IMigrationMetadata.Source

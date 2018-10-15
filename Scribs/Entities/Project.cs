@@ -21,7 +21,7 @@ namespace Scribs {
             }
         }
 
-        public string Template {
+        public string Structure {
             get {
                 return this.GetMetadata(MetadataUtils.Template);
             }

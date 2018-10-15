@@ -1,7 +1,7 @@
-﻿using System.Web.Http;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http;
 using Scribs.Models;
 using Scribs.Filters;
 
@@ -15,6 +15,9 @@ namespace Scribs.Controllers {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var project = user.GetProject(model.Name);
+                List<SheetTemplate> templates = null;
+                if (model.Read.HasValue && model.Read.Value)
+                    templates = db.SheetTemplates.Where(o => o.ProjectKey == project.Key).ToList();
                 return ProjectModelUtils.CreateProjectModelAsync(project, model.Read ?? false);
             }
         }
@@ -43,11 +46,57 @@ namespace Scribs.Controllers {
                 await project.CreateDirectoryAsync();
                 project.Type = (Project.Types)model.Type;
                 project.Description = model.Description;
-                project.Template = model.Template;
-                var templateSegments = project.Template.Split(';').ToList();
-                var folders = templateSegments.Count > 1 ? templateSegments.Take(templateSegments.Count - 1) :
+                project.Structure = model.Structure;
+
+                // Basic sheet templates
+                var charTemplate = SheetTemplate.Factory.CreateInstance(db);
+                charTemplate.User = user;
+                charTemplate.ProjectKey = project.Key;
+                charTemplate.Name = "Characters";
+                int i = 0;
+                foreach (string label in new List<string> {
+                    "Name",
+                    "Description",
+                    "Personality",
+                    "Occupation",
+                    "Objective",
+                    "Habits",
+                    "Conflicts",
+                    "Relatives",
+                    "Notes"
+                }) {
+                    var field = SheetTemplateField.Factory.CreateInstance(db);
+                    field.Index = i++;
+                    field.Label = label;
+                    field.SheetTemplate = charTemplate;
+                    //charTemplate.SheetTemplateFields.Add(field);
+                }
+                var setTemplate = SheetTemplate.Factory.CreateInstance(db);
+                setTemplate.User = user;
+                setTemplate.ProjectKey = project.Key;
+                setTemplate.Name = "Settings";
+                i = 0;
+                foreach (string label in new List<string> {
+                    "Name",
+                    "Description",
+                    "Sights",
+                    "Sounds",
+                    "Smells",
+                    "Notes"
+                }) {
+                    var field = SheetTemplateField.Factory.CreateInstance(db);
+                    field.Index = i++;
+                    field.Label = label;
+                    field.SheetTemplate = setTemplate;
+                    //setTemplate.SheetTemplateFields.Add(field);
+                }
+                await db.SaveChangesAsync();
+
+                // Structure generation
+                var structureSegments = project.Structure.Split(';').ToList();
+                var folders = structureSegments.Count > 1 ? structureSegments.Take(structureSegments.Count - 1) :
                     new List<string> { "folder" };
-                var file = templateSegments.Count > 0 ? templateSegments.Last() : "file";
+                var file = structureSegments.Count > 0 ? structureSegments.Last() : "file";
                 var directory = project as Directory;
                 foreach (string folder in folders) {
                     string directoryName = folder.Substring(0, 1).ToUpper() + folder.Substring(1, folder.Length - 1) + " 1";
@@ -57,6 +106,7 @@ namespace Scribs.Controllers {
                 string fileName = file.Substring(0, 1).ToUpper() + file.Substring(1, file.Length - 1) + " 1";
                 var fileItem = directory.GetFile(fileName);
                 await fileItem.CreateAsync();
+
                 return new ProjectModel {
                     Name = model.Name,
                     Path = project.Path.ToString(),
