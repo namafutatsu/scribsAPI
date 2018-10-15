@@ -160,6 +160,7 @@
     <Compile Include="Controllers\DirectoryController.cs" />
     <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\AccessController.cs" />
+    <Compile Include="Entities\Metadata.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Project.cs" />
     <Compile Include="Entities\Directory.cs" />

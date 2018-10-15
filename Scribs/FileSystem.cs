@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -40,6 +41,7 @@ namespace Scribs {
         Task CreateAsync();
         Task DeleteAsync();
         Task CopyFromAsync(IFileSystemItem source);
+        IDictionary<string, string> Metadata { get; }
     }
 
     public abstract class FileSystemItem<E, F>: IFileSystemItem where F : IFileSystemFactory<E>, new() where E : class, IListFileItem {
@@ -72,12 +74,27 @@ namespace Scribs {
         public E CloudItem { get; }
         public string Name => Path.Last;
         public Path Path { get; set; }
-        public abstract string Key { get; set; }
-        public abstract int Index { get; set; }
+        public string Key {
+            get {
+                return (this).GetMetadata(MetadataUtils.Key);
+            }
+            set {
+                (this).SetMetadata(MetadataUtils.Key, value);
+            }
+        }
+        public int Index {
+            get {
+                return this.GetMetadata(MetadataUtils.Index);
+            }
+            set {
+                this.SetMetadata(MetadataUtils.Index, value);
+            }
+        }
         public abstract Task<bool> ExistsAsync();
         public abstract Task CreateAsync();
         public abstract Task DeleteAsync();
         public abstract Task CopyFromAsync(IFileSystemItem source);
+        public abstract IDictionary<string, string> Metadata { get; }
         public ScribsDbContext db;
     }
 

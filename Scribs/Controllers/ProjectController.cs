@@ -42,6 +42,7 @@ namespace Scribs.Controllers {
                     throw new System.Exception("This project already exists");
                 await project.CreateDirectoryAsync();
                 project.Type = (Project.Types)model.Type;
+                project.Description = model.Description;
                 project.Template = model.Template;
                 var templateSegments = project.Template.Split(';').ToList();
                 var folders = templateSegments.Count > 1 ? templateSegments.Take(templateSegments.Count - 1) :

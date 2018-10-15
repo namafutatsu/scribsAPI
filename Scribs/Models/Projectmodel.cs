@@ -22,8 +22,6 @@ namespace Scribs.Models {
                 Type = (int)project.Type,
                 Description = project.Description
             };
-            if (project.CloudItem.Metadata.ContainsKey("Index"))
-                model.Index = int.Parse(project.CloudItem.Metadata["Index"]);
             var dirModel = await DirectoryModelUtils.CreateDirectoryModelAsync(project, read);
             model.Items = (dirModel as DirectoryModel).Items;
             return model;

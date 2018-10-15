@@ -14,48 +14,28 @@ namespace Scribs {
 
         public string Description {
             get {
-                if (CloudItem.Metadata.ContainsKey("Description"))
-                    return CloudItem.Metadata["Description"];
-                string description = "";
-                CloudItem.Metadata.Add("Description", description);
-                return description;
+                return this.GetMetadata(MetadataUtils.Description);
             }
             set {
-                if (CloudItem.Metadata.ContainsKey("Description"))
-                    CloudItem.Metadata["Description"] = value;
-                else
-                    CloudItem.Metadata.Add("Description", value);
+                this.SetMetadata(MetadataUtils.Description, value);
             }
         }
 
         public string Template {
             get {
-                if (CloudItem.Metadata.ContainsKey("Template"))
-                    return CloudItem.Metadata["Template"];
-                string template = "";
-                CloudItem.Metadata.Add("Template", template);
-                return template;
+                return this.GetMetadata(MetadataUtils.Template);
             }
             set {
-                if (CloudItem.Metadata.ContainsKey("Template"))
-                    CloudItem.Metadata["Template"] = value;
-                else
-                    CloudItem.Metadata.Add("Template", value);
+                this.SetMetadata(MetadataUtils.Template, value);
             }
         }
 
         public Types Type {
             get {
-                if (CloudItem.Metadata.ContainsKey("Type"))
-                    return (Types)int.Parse(CloudItem.Metadata["Type"]);
-                CloudItem.Metadata.Add("Type", ((int)Types.Novel).ToString());
-                return Types.Novel;
+                return this.GetMetadata(MetadataUtils.Type);
             }
             set {
-                if (CloudItem.Metadata.ContainsKey("Type"))
-                    CloudItem.Metadata["Type"] = ((int)value).ToString();
-                else
-                    CloudItem.Metadata.Add("Type", ((int)value).ToString());
+                this.SetMetadata(MetadataUtils.Type, value);
             }
         }
 
