@@ -199,6 +199,7 @@
     <Compile Include="Models\ProjectModel.cs" />
     <Compile Include="Models\DirectoryModel.cs" />
     <Compile Include="Models\ItemModel.cs" />
+    <Compile Include="Models\TreeItemModel.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Models\FileModel.cs" />
     <Compile Include="Models\AccessModel.cs" />

@@ -1,5 +1,6 @@
-﻿using System.IO;
-using System.Text;
+﻿using ScriboAPI.Models;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Scribs.Models {
@@ -12,12 +13,11 @@ namespace Scribs.Models {
             var model = new FileModel {
                 Path = file.Path.ToString(),
                 Name = file.Name,
+                OriginalName = file.Name,
                 Discriminator = Discriminator.File,
                 Index = file.Index,
                 Key = file.Key
             };
-            if (file.CloudItem.Metadata.ContainsKey("Index"))
-                model.Index = int.Parse(file.CloudItem.Metadata["Index"]);
             if (read) {
                 string text = await file.DownloadTextAsync();
                 // Temp
@@ -30,6 +30,22 @@ namespace Scribs.Models {
                 model.Text = text;
             }
             return model;
+        }
+
+        public static TreeNodeModel FileToTreeItemModel(FileModel o, string parentKey, string[] structure, int level) {
+            return new TreeNodeModel {
+                Key = o.Key,
+                ParentKey = parentKey,
+                Index = o.Index,
+                Level = level + 1,
+                Path = o.Path,
+                label = o.Name,
+                data = o.Text,
+                icon = "fa fa-file-o",
+                droppable = o.Discriminator == Discriminator.Directory
+                //FolderLabel = structure.Any() ? level < structure.Length - 1 ? structure[level] : String.Empty : "Folder",
+                //FileLabel = structure.Any() ? level >= structure.Length - 1 ? structure.Last() : String.Empty : "File"
+            };
         }
     }
 }

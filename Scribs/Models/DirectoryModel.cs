@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using ScriboAPI.Models;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +14,7 @@ namespace Scribs.Models {
             var model = new DirectoryModel {
                 Path = directory.Path.ToString(),
                 Name = directory.Name,
+                OriginalName = directory.Name,
                 Items = new List<ItemModel>(),
                 Discriminator = Discriminator.Directory,
                 Index = directory.Index,
@@ -22,6 +25,25 @@ namespace Scribs.Models {
             var results = await Task.WhenAll(tasks);
             model.Items = results.ToList();
             return model;
+        }
+
+        public static TreeNodeModel DirectoryToTreeItemModel(DirectoryModel o, string parentKey, string[] structure, int level) {
+            return new TreeNodeModel {
+                Key = o.Key,
+                ParentKey = parentKey,
+                Path = o.Path,
+                Index = o.Index,
+                //FolderLabel = structure.Any() ? level < structure.Length - 1 ? structure[level] : String.Empty : "Folder",
+                //FileLabel = structure.Any() ? level >= structure.Length - 1 ? structure.Last() : String.Empty : "File",
+                label = o.Name,
+                collapsedIcon = "fa fa-folder",
+                expandedIcon = "fa fa-folder-open",
+                droppable = o.Discriminator == Discriminator.Directory,
+                Level = level,
+                children = o.Items.Select(i => i.Discriminator == Discriminator.Directory ?
+                    DirectoryToTreeItemModel(i as DirectoryModel, o.Key, structure, level + 1) :
+                    FileModelUtils.FileToTreeItemModel(i as FileModel, o.Key, structure, level + 1)).ToArray()
+            };
         }
     }
 }

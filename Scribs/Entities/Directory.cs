@@ -49,6 +49,10 @@ namespace Scribs {
         }
 
         public override IDictionary<string, string> Metadata => CloudItem.Metadata;
+
+        public override void SetMetadata() => CloudItem.SetMetadata();
+
+        public override void FetchAttributes() => CloudItem.FetchAttributes();
     }
 
     public class CloudFileDirectoryFactory : IFileSystemFactory<CloudFileDirectory> {

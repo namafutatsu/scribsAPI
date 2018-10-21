@@ -1,9 +1,11 @@
-using Microsoft.WindowsAzure.Storage.File;
+using System;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage.File;
 
 namespace Scribs {
 
     public class Project : Directory {
+
         public Project(ScribsDbContext db, CloudFileDirectory cloudItem) : base(db, cloudItem) { }
         public Project(User user, string name) : base(user, "/" + FileSystem.SHARE_FILE + "/" + user.Name + "/" + name) { }
 
@@ -23,11 +25,16 @@ namespace Scribs {
 
         public string Structure {
             get {
-                return this.GetMetadata(MetadataUtils.Template);
+                return this.GetMetadata(MetadataUtils.Structure);
             }
             set {
-                this.SetMetadata(MetadataUtils.Template, value);
+                this.SetMetadata(MetadataUtils.Structure, value);
             }
+        }
+        public string[] GetStructure() {
+            if (String.IsNullOrWhiteSpace(Structure))
+                return new string[0];
+            return Structure.Split(';');
         }
 
         public Types Type {

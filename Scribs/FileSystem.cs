@@ -42,6 +42,9 @@ namespace Scribs {
         Task DeleteAsync();
         Task CopyFromAsync(IFileSystemItem source);
         IDictionary<string, string> Metadata { get; }
+        void SetMetadata();
+        void FetchAttributes();
+        bool Fetched { get; set; }
     }
 
     public abstract class FileSystemItem<E, F>: IFileSystemItem where F : IFileSystemFactory<E>, new() where E : class, IListFileItem {
@@ -95,6 +98,10 @@ namespace Scribs {
         public abstract Task DeleteAsync();
         public abstract Task CopyFromAsync(IFileSystemItem source);
         public abstract IDictionary<string, string> Metadata { get; }
+        public abstract void SetMetadata();
+        public bool Fetched { get; set; } = false;
+        public abstract void FetchAttributes();
+
         public ScribsDbContext db;
     }
 
