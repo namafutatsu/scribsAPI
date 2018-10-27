@@ -56,7 +56,7 @@ namespace Scribs {
         public FileSystemItem(ScribsDbContext db, E cloudItem) {
             this.db = db;
             CloudItem = cloudItem;
-            Path = new Path(db, cloudItem.Uri.ToString());
+            Path = new Path(db, cloudItem.Uri.LocalPath);
         }
         private static F cloudFactory;
         public static F CloudFactory {

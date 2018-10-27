@@ -13,7 +13,6 @@ namespace Scribs.Models {
             var model = new FileModel {
                 Path = file.Path.ToString(),
                 Name = file.Name,
-                OriginalName = file.Name,
                 Discriminator = Discriminator.File,
                 Index = file.Index,
                 Key = file.Key

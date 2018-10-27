@@ -1,5 +1,5 @@
-﻿using System.Web.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using System.Web.Http;
 using Scribs.Models;
 using Scribs.Filters;
 
@@ -9,24 +9,21 @@ namespace Scribs.Controllers {
     public class CommandController : AccessController {
 
         [HttpPost]
-        public async Task<CommandSetModel> Post(CommandSetModel model) {
+        public async Task<CommandModel> Post(CommandModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                foreach (var command in model.Commands) {
-                    ItemController controller = command.Discriminator == Discriminator.File ?
-                        new FileController() : (ItemController)new DirectoryController();
-                    switch (command.Type) {
-                        case (Command.Create):
-                            await controller.CreateAsync(user, command);
-                            break;
-                        case Command.Delete:
-                            await controller.DeleteAsync(user, command);
-                            break;
-                        case Command.Move:
-                            await controller.MoveAsync(user, command);
-                            break;
-                    }
-                    command.Done = true;
+                ItemController controller = model.Discriminator == Discriminator.File ?
+                    new FileController() : (ItemController)new DirectoryController();
+                switch (model.Type) {
+                    case (Command.Create):
+                        await controller.CreateAsync(user, model);
+                        break;
+                    case Command.Delete:
+                        await controller.DeleteAsync(user, model);
+                        break;
+                    case Command.Move:
+                        await controller.MoveAsync(user, model);
+                        break;
                 }
                 return model;
             }

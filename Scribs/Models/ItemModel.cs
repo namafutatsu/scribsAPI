@@ -8,7 +8,6 @@
     public abstract class ItemModel {
         public string Path { get; set; }
         public string Name { get; set; }
-        public string OriginalName { get; set; }
         public string Key { get; set; }
         public bool? Read { get; set; }
         public Discriminator? Discriminator { get; set; }

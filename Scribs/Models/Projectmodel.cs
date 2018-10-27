@@ -18,7 +18,6 @@ namespace Scribs.Models {
             var model = new ProjectModel {
                 Path = project.Path.ToString(),
                 Name = project.Name,
-                OriginalName = project.Name,
                 Items = new List<ItemModel>(),
                 Discriminator = Discriminator.Directory,
                 Index = project.Index,

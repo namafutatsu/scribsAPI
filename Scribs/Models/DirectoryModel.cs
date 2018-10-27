@@ -14,7 +14,6 @@ namespace Scribs.Models {
             var model = new DirectoryModel {
                 Path = directory.Path.ToString(),
                 Name = directory.Name,
-                OriginalName = directory.Name,
                 Items = new List<ItemModel>(),
                 Discriminator = Discriminator.Directory,
                 Index = directory.Index,

@@ -1,7 +1,8 @@
-﻿using Scribs.Models;
-using Scribs.Filters;
-using System.Web.Http;
+﻿using System;
 using System.Threading.Tasks;
+using System.Web.Http;
+using Scribs.Models;
+using Scribs.Filters;
 
 namespace Scribs.Controllers {
 
@@ -17,15 +18,19 @@ namespace Scribs.Controllers {
         }
 
         public Task DeleteAsync(User user, ItemModel model) {
-            var file = GetItem(user, model.Path);
-            return file.DeleteAsync();
+            var item = GetItem(user, model.Path);
+            return item.DeleteAsync();
         }
 
         public async Task MoveAsync(User user, ItemModel model) {
             var item = GetItem(user, model.Path);
-            var newItem = GetItem(user, model.MoveToPath);
-            await newItem.CopyFromAsync(item);
-            newItem.Index = model.MoveToIndex ?? 0;
+            if (!String.IsNullOrEmpty(model.MoveToPath) && model.Path != model.MoveToPath) {
+                var newItem = GetItem(user, model.MoveToPath);
+                await newItem.CopyFromAsync(item);
+                item = newItem;
+            }
+            if (model.MoveToIndex.HasValue && model.Index != model.MoveToIndex)
+                item.Index = model.MoveToIndex ?? 0;
         }
 
         [HttpPost]

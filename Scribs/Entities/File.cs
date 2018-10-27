@@ -15,7 +15,7 @@ namespace Scribs {
 
         public override Task<bool> ExistsAsync() => CloudItem.ExistsAsync();
 
-        public override Task CreateAsync() => CloudItem.CreateAsync(10000000);
+        public override Task CreateAsync() => CloudItem.CreateAsync(0);
 
         public override Task DeleteAsync() => CloudItem.DeleteAsync();
 

@@ -31,7 +31,15 @@ namespace Scribs {
 
         public override Task CreateAsync() => CloudItem.CreateIfNotExistsAsync();
 
-        public override Task DeleteAsync() => CloudItem.DeleteAsync();
+        public override async Task DeleteAsync() {
+            foreach (var file in Files) {
+                await file.DeleteAsync();
+            }
+            foreach (var directory in Directories) {
+                await directory.DeleteAsync();
+            }
+            await CloudItem.DeleteAsync();
+        }
 
         public override Task CopyFromAsync(IFileSystemItem source) => CopyFromAsync(source as Directory);
 
