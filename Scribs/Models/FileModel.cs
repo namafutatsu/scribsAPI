@@ -38,7 +38,7 @@ namespace Scribs.Models {
                 Index = o.Index,
                 Level = level + 1,
                 Path = o.Path,
-                label = o.Name,
+                label = /*o.Index + "." + */o.Name,
                 data = o.Text,
                 icon = "fa fa-file-o",
                 droppable = o.Discriminator == Discriminator.Directory

@@ -1,4 +1,6 @@
-﻿namespace ScriboAPI.Models {
+﻿using System.Linq;
+
+namespace ScriboAPI.Models {
     public class TreeNodeModel {
         public string Key { get; set; }
         public string ParentKey { get; set; }
@@ -16,7 +18,7 @@
         public string icon { get; set; }
         public string expandedIcon { get; set; }
         public string collapsedIcon { get; set; }
-        public TreeNodeModel[] children { get; set; }
+        public IOrderedEnumerable<TreeNodeModel> children { get; set; }
         public bool? leaf { get; set; }
         public bool? expanded { get; set; }
         public string type { get; set; }

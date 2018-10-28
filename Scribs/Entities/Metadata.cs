@@ -20,6 +20,14 @@ namespace Scribs {
         public static Metadata<string> Structure => new Metadata<string>("Structure", () => EMPTY);
         public static Metadata<Project.Types> Type => new Metadata<Project.Types>("Type", () => Project.Types.Novel);
 
+        public static bool HasMetadata<T>(this IFileSystemItem item, Metadata<T> metadata) {
+            if (!item.Fetched) {
+                item.FetchAttributes();
+                item.Fetched = true;
+            }
+            return item.Metadata.ContainsKey(metadata.Id);
+        }
+
         public static T GetMetadata<T>(this IFileSystemItem item, Metadata<T> metadata) {
             if (!item.Fetched) {
                 item.FetchAttributes();
@@ -30,7 +38,7 @@ namespace Scribs {
                 if (typeof(T) == typeof(string) && item.Metadata[id].ToString() == EMPTY)
                     return ConvertType<T>(String.Empty);
                 return ConvertType<T>(item.Metadata[id]);
-            }   
+            }
             T @default = metadata.Default();
             item.Metadata.Add(id, @default.ToString());
             item.SetMetadata();
@@ -58,7 +66,7 @@ namespace Scribs {
             T result = default(T);
             var converter = TypeDescriptor.GetConverter(typeof(T));
             if (converter != null)
-                    result = (T)converter.ConvertFromString(input);
+                result = (T)converter.ConvertFromString(input);
             return result;
         }
     }

@@ -19,6 +19,8 @@ namespace Scribs {
             ListFilesAndDirectories().Select(o => o as CloudFileDirectory).Where(o => o != null && !o.Name.StartsWith("."))
             .Select(o => new Directory(db, o));
 
+        public IOrderedEnumerable<IFileSystemItem> GetItems() => Files.Cast<IFileSystemItem>().Concat(Directories.Cast<IFileSystemItem>()).OrderBy(o => o.Index);
+
         public Directory GetDirectory(string name) => new Directory(db, CloudItem.GetDirectoryReference(name));
 
         public File GetFile(string name) => new File(db, CloudItem.GetFileReference(name));
@@ -61,6 +63,15 @@ namespace Scribs {
         public override void SetMetadata() => CloudItem.SetMetadata();
 
         public override void FetchAttributes() => CloudItem.FetchAttributes();
+
+        public void UdpateIndex(int index) {
+            int i = 0;
+            foreach (var directory in Directories)
+                directory.UdpateIndex(i++);
+            foreach (var file in Files)
+                file.Index = i++;
+            Index = index;
+        }
     }
 
     public class CloudFileDirectoryFactory : IFileSystemFactory<CloudFileDirectory> {

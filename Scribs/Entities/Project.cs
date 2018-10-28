@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.File;
 
@@ -47,6 +48,12 @@ namespace Scribs {
         }
 
         public static Project GetFromDirectory(ScribsDbContext db, Directory directory) => new Project(db, directory.CloudItem);
+
         public Task<bool> CreateDirectoryAsync() => CloudItem.CreateIfNotExistsAsync();
+
+        public void UdpateIndex() {
+            int index = User.Directory.Directories.Max(o => o.Index) + 1;
+            UdpateIndex(index);
+        }
     }
 }

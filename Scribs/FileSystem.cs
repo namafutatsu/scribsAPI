@@ -35,7 +35,10 @@ namespace Scribs {
     }
 
     public interface IFileSystemItem {
+        string Name { get; }
+        Path Path { get; }
         string Key { get; set; }
+        Directory Parent { get; }
         int Index { get; set; }
         Task<bool> ExistsAsync();
         Task CreateAsync();
@@ -100,6 +103,8 @@ namespace Scribs {
         public abstract IDictionary<string, string> Metadata { get; }
         public abstract void SetMetadata();
         public bool Fetched { get; set; } = false;
+        public Directory Parent => new Directory(User, Path.Parent.ToString());
+
         public abstract void FetchAttributes();
 
         public ScribsDbContext db;

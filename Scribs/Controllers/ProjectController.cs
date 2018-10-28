@@ -16,6 +16,8 @@ namespace Scribs.Controllers {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var project = user.GetProject(model.Name);
+                if (!project.HasMetadata(MetadataUtils.Index))
+                    project.UdpateIndex();
                 List<SheetTemplate> templates = null;
                 if (model.Read.HasValue && model.Read.Value)
                     templates = db.SheetTemplates.Where(o => o.ProjectKey == project.Key).ToList();
@@ -42,6 +44,7 @@ namespace Scribs.Controllers {
         public async Task<ProjectModel> Post(ProjectModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
+                int index = user.Directory.Directories.Count();
                 var project = new Project(user, model.Name);
                 bool exists = await project.ExistsAsync();
                 if (exists)
@@ -50,6 +53,7 @@ namespace Scribs.Controllers {
                 project.Type = (Project.Types)model.Type;
                 project.Description = model.Description;
                 project.Structure = model.Structure.Aggregate((a, b) => a + ";" + b);
+                project.Index = 0;
 
                 // Basic sheet templates
                 //var charTemplate = SheetTemplate.Factory.CreateInstance(db);
@@ -104,10 +108,12 @@ namespace Scribs.Controllers {
                     string directoryName = folder.Substring(0, 1).ToUpper() + folder.Substring(1, folder.Length - 1) + " 1";
                     directory = directory.GetDirectory(directoryName);
                     await directory.CreateAsync();
+                    directory.Index = 0;
                 }
                 string fileName = file.Substring(0, 1).ToUpper() + file.Substring(1, file.Length - 1) + " 1";
                 var fileItem = directory.GetFile(fileName);
                 await fileItem.CreateAsync();
+                fileItem.Index = 0;
 
                 return new ProjectModel {
                     Name = model.Name,

@@ -35,9 +35,10 @@ namespace Scribs {
                 }
                 return user;
             }
-        }   
+        }
         public string Last => segments.Last();
         public string Relative => segments.Skip(2).Aggregate((a, b) => a + "/" + b);
+        public Path Parent => new Path(db, segments.Take(segments.Length - 1).Aggregate((a, b) => a + "/" + b));
         public override string ToString() {
             return url;
         }
