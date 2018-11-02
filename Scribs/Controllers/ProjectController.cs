@@ -12,7 +12,7 @@ namespace Scribs.Controllers {
     public class ProjectController : AccessController {
 
         [HttpPost]
-        public async Task<TreeNodeModel[]> Get(ProjectModel model) {
+        public async Task<TreeNodeModel> Get(ProjectModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var project = user.GetProject(model.Name);
@@ -22,8 +22,7 @@ namespace Scribs.Controllers {
                 if (model.Read.HasValue && model.Read.Value)
                     templates = db.SheetTemplates.Where(o => o.ProjectKey == project.Key).ToList();
                 var result = await ProjectModelUtils.CreateProjectModelAsync(project, model.Read ?? false);
-                var node = new TreeNodeModel[1] { ProjectModelUtils.ProjectToTreeItemModel(result) };
-                return node;
+                return ProjectModelUtils.ProjectToTreeItemModel(result);
             }
         }
 
