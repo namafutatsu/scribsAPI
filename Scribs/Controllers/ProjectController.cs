@@ -5,6 +5,7 @@ using System.Web.Http;
 using Scribs.Models;
 using Scribs.Filters;
 using ScriboAPI.Models;
+using System;
 
 namespace Scribs.Controllers {
 
@@ -53,6 +54,7 @@ namespace Scribs.Controllers {
                 project.Description = model.Description;
                 project.Structure = model.Structure.Aggregate((a, b) => a + ";" + b);
                 project.Index = 0;
+                project.Key = Guid.NewGuid().ToString();
 
                 // Basic sheet templates
                 //var charTemplate = SheetTemplate.Factory.CreateInstance(db);
@@ -108,11 +110,13 @@ namespace Scribs.Controllers {
                     directory = directory.GetDirectory(directoryName);
                     await directory.CreateAsync();
                     directory.Index = 0;
+                    directory.Key = Guid.NewGuid().ToString();
                 }
                 string fileName = file.Substring(0, 1).ToUpper() + file.Substring(1, file.Length - 1) + " 1";
                 var fileItem = directory.GetFile(fileName);
                 await fileItem.CreateAsync();
                 fileItem.Index = 0;
+                fileItem.Key = Guid.NewGuid().ToString();
 
                 return new ProjectModel {
                     Name = model.Name,

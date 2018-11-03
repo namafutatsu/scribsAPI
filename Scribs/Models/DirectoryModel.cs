@@ -31,13 +31,13 @@ namespace Scribs.Models {
                 ParentKey = parentKey,
                 Path = o.Path,
                 Index = o.Index,
-                //FolderLabel = structure.Any() ? level < structure.Length - 1 ? structure[level] : String.Empty : "Folder",
-                //FileLabel = structure.Any() ? level >= structure.Length - 1 ? structure.Last() : String.Empty : "File",
-                label = /*o.Index + "." + */o.Name,
+                //label = o.Index + "." + o.Name + "." + level,
+                label = o.Name,
                 collapsedIcon = "fa fa-folder",
                 expandedIcon = "fa fa-folder-open",
-                droppable = o.Discriminator == Discriminator.Directory,
                 Level = level,
+                droppable = true,
+                IsLeaf = false,
                 children = o.Items.Select(i => i.Discriminator == Discriminator.Directory ?
                     DirectoryToTreeItemModel(i as DirectoryModel, o.Key, structure, level + 1) :
                     FileModelUtils.FileToTreeItemModel(i as FileModel, o.Key, structure, level + 1)).OrderBy(i => i.Index)

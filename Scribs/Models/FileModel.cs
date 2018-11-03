@@ -34,14 +34,14 @@ namespace Scribs.Models {
                 Key = o.Key,
                 ParentKey = parentKey,
                 Index = o.Index,
-                Level = level + 1,
+                Level = level,
                 Path = o.Path,
-                label = /*o.Index + "." + */o.Name,
+                //label = o.Index + "." + o.Name + "." + level,
+                label = o.Name,
+                droppable = false,
                 data = o.Text,
                 icon = "fa fa-file-o",
-                droppable = o.Discriminator == Discriminator.Directory
-                //FolderLabel = structure.Any() ? level < structure.Length - 1 ? structure[level] : String.Empty : "Folder",
-                //FileLabel = structure.Any() ? level >= structure.Length - 1 ? structure.Last() : String.Empty : "File"
+                IsLeaf = true
             };
         }
     }
