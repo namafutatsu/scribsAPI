@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using Serilog;
 
 namespace Scribs {
 
@@ -59,6 +60,7 @@ namespace Scribs {
                 item.Metadata[id] = value.ToString();
             else
                 item.Metadata.Add(id, value.ToString());
+            Log.Error(item.Path + " : " + metadata.Id + " -> " + value);
             item.SetMetadata();
         }
 

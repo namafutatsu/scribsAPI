@@ -12,6 +12,8 @@ namespace Scribs {
 
         public Task<string> DownloadTextAsync() => CloudItem.DownloadTextAsync();
 
+        public Task UploadTextAsync(string content) => CloudItem.UploadTextAsync(content);
+
         public override Task<bool> ExistsAsync() => CloudItem.ExistsAsync();
 
         public override Task CreateAsync() => CloudItem.CreateAsync(10);

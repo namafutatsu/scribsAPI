@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Web.Http;
+using Serilog;
 using Scribs.Filters;
 using Scribs.Models;
 
@@ -33,6 +34,15 @@ namespace Scribs.Controllers {
             } catch {
                 throw new HttpResponseException(HttpStatusCode.ExpectationFailed);
             }
+        }
+
+        public AccessController() {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Debug()
+                .WriteTo.Console()
+                .WriteTo.File("D:\\Projects\\scribs\\ScribsAPI\\Scribs\\App_Data\\logfile.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
         }
     }
 
