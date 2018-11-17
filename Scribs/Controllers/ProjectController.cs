@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Scribs.Models;
 using Scribs.Filters;
 using ScriboAPI.Models;
-using System;
 
 namespace Scribs.Controllers {
 
@@ -17,8 +17,6 @@ namespace Scribs.Controllers {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var project = user.GetProject(model.Name);
-                if (!project.HasMetadata(MetadataUtils.Index))
-                    project.UdpateIndex();
                 List<SheetTemplate> templates = null;
                 if (model.Read.HasValue && model.Read.Value)
                     templates = db.SheetTemplates.Where(o => o.ProjectKey == project.Key).ToList();
@@ -34,22 +32,20 @@ namespace Scribs.Controllers {
                 var projects = user.GetProjects();
                 return projects.Select(o => new ProjectModel {
                     Name = o.Name,
-                    Path = o.Path.ToString(),
                     Key = o.Key
                 });
             }
         }
 
         [HttpPost]
-        public async Task<ProjectModel> Post(ProjectModel model) {
+        public async Task<ProjectModel> PostAsync(ProjectModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                int index = user.Directory.Directories.Count();
+                int index = user.GetProjects().Count();
                 var project = new Project(user, model.Name);
-                bool exists = await project.ExistsAsync();
-                if (exists)
+                if (project.Exists())
                     throw new System.Exception("This project already exists");
-                await project.CreateDirectoryAsync();
+                project.Create();
                 project.Type = (Project.Types)model.Type;
                 project.Description = model.Description;
                 project.Structure = model.Structure.Aggregate((a, b) => a + ";" + b);
@@ -108,19 +104,18 @@ namespace Scribs.Controllers {
                 foreach (string folder in folders) {
                     string directoryName = folder.Substring(0, 1).ToUpper() + folder.Substring(1, folder.Length - 1) + " 1";
                     directory = directory.GetDirectory(directoryName);
-                    await directory.CreateAsync();
+                    directory.Create();
                     directory.Index = 0;
                     directory.Key = Guid.NewGuid().ToString();
                 }
                 string fileName = file.Substring(0, 1).ToUpper() + file.Substring(1, file.Length - 1) + " 1";
                 var fileItem = directory.GetFile(fileName);
-                await fileItem.CreateAsync();
+                fileItem.Create();
                 fileItem.Index = 0;
                 fileItem.Key = Guid.NewGuid().ToString();
 
                 return new ProjectModel {
                     Name = model.Name,
-                    Path = project.Path.ToString(),
                     Discriminator = Discriminator.Directory,
                     Key = project.Key
                 };

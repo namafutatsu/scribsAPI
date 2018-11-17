@@ -5,21 +5,15 @@ using System.Threading.Tasks;
 namespace Scribs {
 
     public partial class User: Entity<User> {
+        public string Path => System.IO.Path.Combine(FileSystem.STORAGE, Name);
 
-        private Directory directory;
-        public Directory Directory {
-            get {
-                if (directory == null) {
-                    directory = FileSystem.GetRootDir(db).GetDirectory(Name);
-                }
-                return directory;
-            }
+        public void CreateDirectory() {
+            if (!System.IO.Directory.Exists(Path))
+                System.IO.Directory.CreateDirectory(Path);
         }
 
-        public Task<bool> CreateDirectoryAsync() => Directory.CreateIfNotExistsAsync();
+        public IEnumerable<Project> GetProjects() => System.IO.Directory.GetDirectories(Path).Select(o => new Project(this, System.IO.Path.GetFileName(o)));
 
-        public IEnumerable<Project> GetProjects() => Directory.Directories.Select(o => Project.GetFromDirectory(db, o));
-
-        public Project GetProject(string name) => Project.GetFromDirectory(db,  Directory.GetDirectory(name));
+        public Project GetProject(string name) => new Project(this, name);
     }
 }

@@ -6,7 +6,8 @@
     }
 
     public abstract class ItemModel {
-        public string Path { get; set; }
+        public string Project { get; set; }
+        public string Url { get; set; }
         public string Name { get; set; }
         public string Key { get; set; }
         public bool? Read { get; set; }

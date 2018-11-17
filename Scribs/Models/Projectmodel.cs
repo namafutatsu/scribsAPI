@@ -16,7 +16,7 @@ namespace Scribs.Models {
     public static class ProjectModelUtils {
         public static async Task<ProjectModel> CreateProjectModelAsync(Project project, bool read = false, IEnumerable<SheetTemplate> templates = null) {
             var model = new ProjectModel {
-                Path = project.Path.ToString(),
+                Url = project.Url,
                 Name = project.Name,
                 Items = new List<ItemModel>(),
                 Discriminator = Discriminator.Directory,

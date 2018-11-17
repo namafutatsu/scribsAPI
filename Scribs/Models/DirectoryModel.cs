@@ -11,7 +11,7 @@ namespace Scribs.Models {
     public static class DirectoryModelUtils {
         public static async Task<ItemModel> CreateDirectoryModelAsync(Directory directory, bool read = false) {
             var model = new DirectoryModel {
-                Path = directory.Path.ToString(),
+                Url = directory.Url,
                 Name = directory.Name,
                 Items = new List<ItemModel>(),
                 Discriminator = Discriminator.Directory,
@@ -29,7 +29,7 @@ namespace Scribs.Models {
             return new TreeNodeModel {
                 Key = o.Key,
                 ParentKey = parentKey,
-                Path = o.Path,
+                Url = o.Url,
                 Index = o.Index,
                 //label = o.Index + "." + o.Name + "." + level,
                 label = o.Name,

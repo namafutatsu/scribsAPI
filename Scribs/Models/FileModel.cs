@@ -9,7 +9,7 @@ namespace Scribs.Models {
     public static class FileModelUtils {
         public static async Task<ItemModel> CreateFileModelAsync(File file, bool read = false) {
             var model = new FileModel {
-                Path = file.Path.ToString(),
+                Url = file.Url,
                 Name = file.Name,
                 Discriminator = Discriminator.File,
                 Index = file.Index,
@@ -35,7 +35,7 @@ namespace Scribs.Models {
                 ParentKey = parentKey,
                 Index = o.Index,
                 Level = level,
-                Path = o.Path,
+                Url = o.Url,
                 //label = o.Index + "." + o.Name + "." + level,
                 label = o.Name,
                 droppable = false,

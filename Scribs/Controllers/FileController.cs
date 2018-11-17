@@ -12,7 +12,7 @@ namespace Scribs.Controllers {
         public Task<ItemModel> Get(FileModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                var file = new File(user, model.Path);
+                var file = GetItem(user, model.Project, model.Key) as File;
                 return FileModelUtils.CreateFileModelAsync(file, model.Read ?? false);
             }
         }
@@ -21,13 +21,13 @@ namespace Scribs.Controllers {
         public Task<string> Read(FileModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                var file = new File(user, model.Path);
+                var file = GetItem(user, model.Project, model.Key) as File;
                 return file.DownloadTextAsync();
             }
         }
 
-        public override IFileSystemItem GetItem(User user, string path) {
-            return new File(user, path);
+        public override FileSystemItem GetItem(User user, string project, string key) {
+            return user.GetProject(project).GetFile(key);
         }
     }
 }

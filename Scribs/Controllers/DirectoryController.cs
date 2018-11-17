@@ -12,13 +12,13 @@ namespace Scribs.Controllers {
         public Task<ItemModel> Get(DirectoryModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
-                var directory = new Directory(user, model.Path);
+                var directory = GetItem(user, model.Project, model.Key) as Directory;
                 return DirectoryModelUtils.CreateDirectoryModelAsync(directory, model.Read ?? false);
             }
         }
 
-        public override IFileSystemItem GetItem(User user, string path) {
-            return new Directory(user, path);
+        public override FileSystemItem GetItem(User user, string project, string key) {
+            return user.GetProject(project).GetDirectory(key);
         }
     }
 }

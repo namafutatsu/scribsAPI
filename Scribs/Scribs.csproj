@@ -166,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Contents.cs" />
     <Compile Include="Controllers\SheetController.cs" />
     <Compile Include="Controllers\SheetTemplateController.cs" />
     <Compile Include="Controllers\ItemController.cs" />

@@ -4,7 +4,7 @@ namespace ScriboAPI.Models {
     public class TreeNodeModel {
         public string Key { get; set; }
         public string ParentKey { get; set; }
-        public string Path { get; set; }
+        public string Url { get; set; }
         public string[] Structure { get; set; }
         public int? Type { get; set; }
         public string Description { get; set; }

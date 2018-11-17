@@ -1,42 +1,34 @@
-using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage.File;
+using System.Xml.Linq;
 
 namespace Scribs {
 
-    public class File : FileSystemItem<CloudFile, CloudFileFactory> {
-        public File(ScribsDbContext db, CloudFile cloudItem) : base(db, cloudItem) {
+    public class File : FileSystemItem {
+        public File(ScribsDbContext db, Project project, XElement xelement) : base(db, project, xelement) { }
+
+        public async Task<string> DownloadTextAsync() {
+            using (FileStream reader = System.IO.File.Open(Path, FileMode.Open)) {
+                var result = new byte[reader.Length];
+                await reader.ReadAsync(result, 0, (int)reader.Length);
+                return System.Text.Encoding.UTF8.GetString(result);
+            }
         }
 
-        public File(User user, string path) : base(user, path) { }
-
-        public Task<string> DownloadTextAsync() => CloudItem.DownloadTextAsync();
-
-        public Task UploadTextAsync(string content) => CloudItem.UploadTextAsync(content);
-
-        public override Task<bool> ExistsAsync() => CloudItem.ExistsAsync();
-
-        public override Task CreateAsync() => CloudItem.CreateAsync(10);
-
-        public override Task DeleteAsync() => CloudItem.DeleteAsync();
-
-        public override Task CopyFromAsync(IFileSystemItem source) => CopyFromAsync(source as File);
-
-        public async Task CopyFromAsync(File source) {
-            await CreateAsync();
-            await CloudItem.StartCopyAsync(source.CloudItem);
-            await source.DeleteAsync();
+        public Task UploadTextAsync(string content) {
+            using (StreamWriter writer = new StreamWriter(Path.ToString())) {
+                return writer.WriteAsync(content);
+            }
         }
 
-        public override IDictionary<string, string> Metadata => CloudItem.Metadata;
+        public override bool Exists() => System.IO.File.Exists(Path.ToString());
 
-        public override void SetMetadata() => CloudItem.SetMetadata();
+        public override void Create() => System.IO.File.Create(Path.ToString());
 
-        public override void FetchAttributes() => CloudItem.FetchAttributes();
-    }
+        public override void Delete() => System.IO.File.Delete(Path.ToString());
 
-    public class CloudFileFactory : IFileSystemFactory<CloudFile> {
-        public CloudFile GetCloudReference(Directory dir, string relativePath) =>
-            dir.CloudItem.GetFileReference(relativePath);
+        public void Move(File source) => System.IO.File.Move(source.Path, Path);
+
+        public override void Move(FileSystemItem source) => Move(source as File);
     }
 }
