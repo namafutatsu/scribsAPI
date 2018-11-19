@@ -15,17 +15,8 @@ namespace Scribs.Models {
                 Index = file.Index,
                 Key = file.Key
             };
-            if (read) {
-                string text = await file.DownloadTextAsync();
-                // Temp
-                //using (TextReader reader = new StringReader(text)) {
-                //    using (var writer = new StringWriter()) {
-                //        CommonMark.CommonMarkConverter.Convert(reader, writer);
-                //        text = writer.GetStringBuilder().ToString();
-                //    }
-                //}
-                model.Text = text;
-            }
+            if (read)
+                model.Text = await file.DownloadTextAsync();
             return model;
         }
 

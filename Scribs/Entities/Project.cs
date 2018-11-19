@@ -32,7 +32,7 @@ namespace Scribs {
             Type = Types.Novel;
             Save();
         }
-
+        
         public void Load() {
             if (System.IO.File.Exists(ContentsPath))
                 node = XElement.Load(ContentsPath);
@@ -90,6 +90,17 @@ namespace Scribs {
             contents.Add(key, directory as FileSystemItem);
             return directory;
         }
+
+        //public async System.Threading.Tasks.Task<Dictionary<string, string>> GetTextsAsync() {
+        //    var texts = new Dictionary<string, string>();
+        //    foreach (var kvp in contents) {
+        //        var file = kvp.Value as File;
+        //        if (file == null)
+        //            continue;
+        //        texts.Add(kvp.Key, await file.DownloadTextAsync());
+        //    }
+        //    return texts;
+        //}
 
         public enum Types {
             Novel = 0,
