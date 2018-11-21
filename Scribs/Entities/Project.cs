@@ -25,31 +25,31 @@ namespace Scribs {
         }
 
         private void GenerateTree() {
-            node = GenerateNodeDirectory(Path, name);
-            node.Name = "project";
+            Node = GenerateNodeDirectory(Path, name);
+            Node.Name = "project";
             Description = String.Empty;
             Structure = String.Empty;
-            Type = Types.Novel;
+            Type = ProjectTypes.Novel;
             Save();
         }
         
         public void Load() {
             if (System.IO.File.Exists(ContentsPath))
-                node = XElement.Load(ContentsPath);
+                Node = XElement.Load(ContentsPath);
             else
                 GenerateTree();
         }
 
-        public void Save() => node.Save(ContentsPath);
+        public void Save() => Node.Save(ContentsPath);
 
         private XElement GenerateNodeFile(string file, int index = 0) {
-            var element = new XElement("file");
+            var element = new XElement(File.Type);
             FillNode(element, file, index);
             return element;
         }
 
         private XElement GenerateNodeDirectory(string path, string directory, int index = 0) {
-            var element = new XElement("directory");
+            var element = new XElement(Directory.Type);
             FillNode(element, directory, index);
             int childIndex = 0;
             foreach (var child in System.IO.Directory.GetDirectories(path)) {
@@ -69,27 +69,68 @@ namespace Scribs {
             element.SetAttributeValue("name", name);
         }
 
-        public new File GetFile(string key) {
+        public void Remove(FileSystemItem item) => contents.Remove(item.Key);
+
+        public bool TryGetItem(string key, string type, out FileSystemItem item) {
+            item = null;
             if (contents.ContainsKey(key))
-                return contents[key] as File;
-            var element = node.Descendants("file").SingleOrDefault(o => (string)o.Attribute("key") == key);
-            if (element == null)
+                item = contents[key];
+            else {
+                var element = (type == null ? Node.Descendants() : Node.Descendants(type))
+                        .SingleOrDefault(o => (string)o.Attribute("key") == key);
+                if (element == null)
+                    return false;
+                item = GetItemInstance(Db, this, element);
+                contents.Add(key, item);
+            }
+            return true;
+        }
+
+        public FileSystemItem GetItem(string key) {
+            if (!TryGetItem(key, null, out FileSystemItem item))
+                throw new KeyNotFoundException($"Element '{key}' does not exist for project '{Project.name}' of user '{User.Name}'");
+            return item;
+        }
+
+        public IEnumerable<FileSystemItem> GetAllItems(string type = null) =>
+            (type == null ? Node.Descendants() : Node.Descendants(type))
+            .Select(o => GetItem((string)o.Attribute("key")));
+
+        public bool TryGetFile(string key, out File file) {
+            if (TryGetItem(key, File.Type, out FileSystemItem item)) {
+                file = item as File;
+                return true;
+            }
+            file = null;
+            return false;
+        }
+
+        public new File GetFile(string key) {
+            if (!TryGetFile(key, out File file))
                 throw new KeyNotFoundException($"File '{key}' does not exist for project '{Project.name}' of user '{User.Name}'");
-            var file = new File(Db, this, element);
-            contents.Add(key, file as FileSystemItem);
             return file;
         }
 
+        public IEnumerable<File> GetAllFiles() => GetAllItems(File.Type).Cast<File>();
+
+        public bool TryGetDirectory(string key, out Directory directory) {
+            directory = key == Key ? Project : null;
+            if (directory != null)
+                return true;
+            if (TryGetItem(key, Directory.Type, out FileSystemItem item)) {
+                directory = item as Directory;
+                return true;
+            }
+            return false;
+        }
+
         public new Directory GetDirectory(string key) {
-            if (contents.ContainsKey(key))
-                return contents[key] as Directory;
-            var element = node.Descendants("directory").SingleOrDefault(o => (string)o.Attribute("key") == key);
-            if (element == null)
+            if (!TryGetDirectory(key, out Directory directory))
                 throw new KeyNotFoundException($"Directory '{key}' does not exist for project '{Project.name}' of user '{User.Name}'");
-            var directory = new Directory(Db, this, element);
-            contents.Add(key, directory as FileSystemItem);
             return directory;
         }
+
+        public IEnumerable<Directory> GetAllDirectories() => GetAllItems(Directory.Type).Cast<Directory>();
 
         //public async System.Threading.Tasks.Task<Dictionary<string, string>> GetTextsAsync() {
         //    var texts = new Dictionary<string, string>();
@@ -102,26 +143,26 @@ namespace Scribs {
         //    return texts;
         //}
 
-        public enum Types {
+        public enum ProjectTypes {
             Novel = 0,
             ShortStory = 1
         }
 
         public string Description {
             get {
-                return (string)node.Attribute("description");
+                return (string)Node.Attribute("description");
             }
             set {
-                node.SetAttributeValue("description", value);
+                Node.SetAttributeValue("description", value);
             }
         }
 
         public string Structure {
             get {
-                return (string)node.Attribute("structure");
+                return (string)Node.Attribute("structure");
             }
             set {
-                node.SetAttributeValue("structure", value);
+                Node.SetAttributeValue("structure", value);
             }
         }
 
@@ -131,12 +172,12 @@ namespace Scribs {
             return Structure.Split(';');
         }
 
-        public Types Type {
+        public new ProjectTypes Type {
             get {
-                return (Types)Enum.Parse(typeof(Types), (string)node.Attribute("type"));
+                return (ProjectTypes)Enum.Parse(typeof(ProjectTypes), (string)Node.Attribute("type"));
             }
             set {
-                node.SetAttributeValue("type", value.ToString());
+                Node.SetAttributeValue("type", value.ToString());
             }
         }
 

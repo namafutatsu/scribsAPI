@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace ScriboAPI.Models {
     public class TreeNodeModel {
@@ -8,16 +8,16 @@ namespace ScriboAPI.Models {
         public string[] Structure { get; set; }
         public int? Type { get; set; }
         public string Description { get; set; }
-        public int? Index { get; set; }
+        public int Index { get; set; }
         public int Level { get; set; }
-        public bool? IsLeaf { get; set; }
+        public bool IsLeaf { get; set; }
         // From PrimeNg :
         public string label { get; set; }
         public string data { get; set; }
         public string icon { get; set; }
         public string expandedIcon { get; set; }
         public string collapsedIcon { get; set; }
-        public IOrderedEnumerable<TreeNodeModel> children { get; set; }
+        public IEnumerable<TreeNodeModel> children { get; set; }
         public bool? droppable { get; set; }
         public bool? expanded { get; set; }
         public string type { get; set; }

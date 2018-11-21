@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Scribs {
 
     public partial class User: Entity<User> {
-        public string Path => System.IO.Path.Combine(FileSystem.STORAGE, Name);
+        public string Path => System.IO.Path.Combine(FileSystemItem.STORAGE, Name);
 
         public void CreateDirectory() {
             if (!System.IO.Directory.Exists(Path))

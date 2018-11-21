@@ -1,79 +1,77 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
 using System.Xml.Linq;
 
 namespace Scribs {
 
-    public static class FileSystem {
-
-        //public const string SHARE_FILE = "scribs";
-        public const string STORAGE = @"D:\Scribs-Storage";
-
-        //private static Directory rootDir;
-        //public static Directory GetRootDir(ScribsDbContext db) {
-        //    if (rootDir == null) {
-        //        var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-        //        var fileClient = storageAccount.CreateCloudFileClient();
-        //        var share = fileClient.GetShareReference(SHARE_FILE);
-        //        if (!share.Exists())
-        //            throw new System.Exception("This file share does not exist");
-        //        rootDir = new Directory(db, share.GetRootDirectoryReference());
-        //    }
-        //    return rootDir;
-        //}
-
-        //public static E GetItem<E>(this IFileSystemFactory<E> factory, User user, string url)
-        //    where E : class, IListFileItem {
-        //    var path = new Path(user.db, url);
-        //    if (path.Share != SHARE_FILE || path.UserName != user.Name)
-        //        throw new HttpResponseException(HttpStatusCode.Unauthorized);
-        //    var relativePath = path.Relative;
-        //    return factory.GetCloudReference(user.Directory, relativePath);
-        //}
-    }
-
     public abstract class FileSystemItem {
+        public const string STORAGE = @"D:\Scribs-Storage";
         public Project Project { get; protected set; }
-        protected XElement node;
-        public string Url => new List<string> { Name }.Concat(node?.Ancestors().Select(o => (string)o.Attribute("name"))).Reverse().Aggregate(System.IO.Path.Combine);
+        public XElement Node { get; protected set; }
+        public Directory Parent => Project.GetDirectory((string)Node.Ancestors().FirstOrDefault().Attribute("key"));
+        public string Url => Node?.AncestorsAndSelf().Select(o => (string)o.Attribute("name")).Reverse().Aggregate(System.IO.Path.Combine);
         public ScribsDbContext Db { get; set; }
         public string Name {
             get {
-                return (string)node.Attribute("name");
+                return (string)Node.Attribute("name");
             }
             set {
-                node.SetAttributeValue("name", value);
+                Node.SetAttributeValue("name", value);
             }
         }
         public string Key {
             get {
-                return (string)node.Attribute("key");
+                return (string)Node.Attribute("key");
             }
             set {
-                node.SetAttributeValue("key", value);
+                Node.SetAttributeValue("key", value);
             }
         }
         public int Index {
             get {
-                return (int)node.Attribute("index");
+                return (int)Node.Attribute("index");
             }
             set {
-                node.SetAttributeValue("index", value);
+                Node.SetAttributeValue("index", value);
             }
         }
         protected string Path => System.IO.Path.Combine(Project.User.Path, Url);
         public FileSystemItem(ScribsDbContext db, Project project, XElement node) {
             Db = db;
             Project = project;
-            this.node = node;
+            Node = node;
         }
-        public abstract bool Exists();
-        public abstract void Create();
-        public abstract void Delete();
-        public abstract void Move(FileSystemItem source);
+        public abstract bool ExistsItem();
+        public abstract void CreateItem();
+        public abstract void DeleteItem();
+        public abstract void MoveItem(string source);
+        public static FileSystemItem Create(Directory parent, string type, string name, string key, int index) {
+            var node = new XElement(type);
+            node.SetAttributeValue("name", name);
+            node.SetAttributeValue("key", key);
+            node.SetAttributeValue("index", index);
+            parent.Node.Add(node);
+            var item = GetItemInstance(parent.Db, parent.Project, node);
+            item.CreateItem();
+            return item;
+        }
+        public virtual void Delete() {
+            DeleteItem();
+            Project.Remove(this);
+            Node.Remove();
+        }
+        public virtual void Move(Directory parent) {
+            string path = Path;
+            Node.Remove();
+            parent.Node.Add(Node);
+            MoveItem(path);
+        }
+        public virtual void Rename(string name) {
+            Name = name;
+        }
+        public static FileSystemItem GetItemInstance(ScribsDbContext db, Project project, XElement node) {
+            if (node.Name == Directory.Type)
+                return new Directory(db, project, node) as FileSystemItem;
+            return new File(db, project, node) as FileSystemItem;
+        }
     }
 }

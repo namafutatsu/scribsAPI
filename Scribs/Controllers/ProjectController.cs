@@ -38,15 +38,82 @@ namespace Scribs.Controllers {
         }
 
         [HttpPost]
+        public TreeNodeModel Put(TreeNodeModel model) {
+            using (var db = new ScribsDbContext()) {
+                var user = GetUser(db);
+                var project = user.GetProject(model.label);
+                var models = new Dictionary<string, TreeNodeModel>();
+                // Creations/Modifications
+                UpdateDirectory(db, model, project, models);
+                // Deletions
+                var keys = project.GetAllItems().Select(o => o.Key).ToList();
+                var deleted = new HashSet<string>();
+                foreach (var key in keys) {
+                    if (!deleted.Contains(key) && project.TryGetItem(key, null, out FileSystemItem item)) {
+                        if (item != null && !models.ContainsKey(key)) {
+                            item.Delete();
+                            var directory = item as Directory;
+                            if (directory != null)
+                                foreach (var node in directory.Node.Descendants())
+                                    deleted.Add((string)node.Attribute("key"));
+                            deleted.Add(item.Key);
+                        }
+                    }
+                }
+                project.Save();
+                return model;
+            }
+        }
+
+        private void UpdateDirectory(ScribsDbContext db, TreeNodeModel model, Project project, Dictionary<string, TreeNodeModel> models) {
+            models.Add(model.Key, model);
+            Directory directory = project;
+            Directory parent = null;
+            if (model.ParentKey != null)
+                project.TryGetDirectory(model.ParentKey, out parent);
+            if (model.Key != project.Key) {
+                if (!project.TryGetDirectory(model.Key, out directory)) {
+                    FileSystemItem.Create(parent, Directory.Type, model.label, model.Key, model.Index);
+                } else {
+                    if (directory.Parent != parent)
+                        directory.Move(parent);
+                    if (directory.Index != model.Index)
+                        directory.Index = model.Index;
+                    if (directory.Name != model.label)
+                        directory.Rename(model.label);
+                }
+            }
+            foreach (var child in model.children.Where(o => !o.IsLeaf))
+                UpdateDirectory(db, child, project, models);
+            foreach (var child in model.children.Where(o => o.IsLeaf))
+                UpdateFile(db, child, project, models);
+        }
+
+        private void UpdateFile(ScribsDbContext db, TreeNodeModel model, Project project, Dictionary<string, TreeNodeModel> models) {
+            models.Add(model.Key, model);
+            Directory parent = model.ParentKey == project.Key ? project : project.GetDirectory(model.ParentKey);
+            if (!project.TryGetFile(model.Key, out File file)) {
+                FileSystemItem.Create(parent, File.Type, model.label, model.Key, model.Index);
+            } else {
+                if (file.Parent != parent)
+                    file.Move(parent);
+                if (file.Index != model.Index)
+                    file.Index = model.Index;
+                if (file.Name != model.label)
+                    file.Rename(model.label);
+            }
+        }
+
+        [HttpPost]
         public async Task<ProjectModel> PostAsync(ProjectModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 int index = user.GetProjects().Count();
                 var project = new Project(user, model.Name);
-                if (project.Exists())
+                if (project.ExistsItem())
                     throw new System.Exception("This project already exists");
-                project.Create();
-                project.Type = (Project.Types)model.Type;
+                project.CreateItem();
+                project.Type = (Project.ProjectTypes)model.Type;
                 project.Description = model.Description;
                 project.Structure = model.Structure.Aggregate((a, b) => a + ";" + b);
                 project.Index = 0;
@@ -104,13 +171,13 @@ namespace Scribs.Controllers {
                 foreach (string folder in folders) {
                     string directoryName = folder.Substring(0, 1).ToUpper() + folder.Substring(1, folder.Length - 1) + " 1";
                     directory = directory.GetDirectory(directoryName);
-                    directory.Create();
+                    directory.CreateItem();
                     directory.Index = 0;
                     directory.Key = Guid.NewGuid().ToString();
                 }
                 string fileName = file.Substring(0, 1).ToUpper() + file.Substring(1, file.Length - 1) + " 1";
                 var fileItem = directory.GetFile(fileName);
-                fileItem.Create();
+                fileItem.CreateItem();
                 fileItem.Index = 0;
                 fileItem.Key = Guid.NewGuid().ToString();
 
