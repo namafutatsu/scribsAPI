@@ -26,6 +26,15 @@ namespace Scribs.Controllers {
             }
         }
 
+        [HttpPost]
+        public Task Write(FileModel model) {
+            using (var db = new ScribsDbContext()) {
+                var user = GetUser(db);
+                var file = GetItem(user, model.Project, model.Key) as File;
+                return file.UploadTextAsync(model.Text);
+            }
+        }
+
         public FileSystemItem GetItem(User user, string project, string key) {
             return user.GetProject(project).GetFile(key);
         }
