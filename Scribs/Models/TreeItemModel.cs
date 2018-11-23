@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ScriboAPI.Models {
+namespace Scribs.Models {
     public class TreeNodeModel {
         public string Key { get; set; }
         public string ParentKey { get; set; }
@@ -11,6 +11,7 @@ namespace ScriboAPI.Models {
         public int Index { get; set; }
         public int Level { get; set; }
         public bool IsLeaf { get; set; }
+        public long Time { get; set; }
         // From PrimeNg :
         public string label { get; set; }
         public string data { get; set; }

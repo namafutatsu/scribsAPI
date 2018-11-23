@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -19,11 +20,13 @@ namespace Scribs {
             }
         }
 
-        public async Task UploadTextAsync(string content) {
+        public async Task UploadTextAsync(string content, DateTime time) {
             using (StreamWriter writer = new StreamWriter(Path.ToString())) {
                 await writer.WriteAsync(content);
                 writer.Close();
             }
+            Time = time;
+            Project.Save();
         }
 
         public override bool ExistsItem() => System.IO.File.Exists(Path.ToString());

@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using ScriboAPI.Models;
 
 namespace Scribs.Models {
     public class FileModel : ItemModel {

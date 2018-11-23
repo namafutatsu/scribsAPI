@@ -15,5 +15,6 @@
         public int Index { get; set; }
         public string MoveToPath { get; set; }
         public int? MoveToIndex { get; set; }
+        public long Time { get; set; }
     }
 }

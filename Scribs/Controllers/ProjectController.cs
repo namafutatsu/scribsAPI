@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using Scribs.Models;
 using Scribs.Filters;
-using ScriboAPI.Models;
 
 namespace Scribs.Controllers {
 
@@ -38,10 +37,13 @@ namespace Scribs.Controllers {
         }
 
         [HttpPost]
-        public TreeNodeModel Put(TreeNodeModel model) {
+        public void Put(TreeNodeModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var project = user.GetProject(model.label);
+                var time = Utils.DateFromJs(model.Time);
+                if (time <= project.Time)
+                    return;
                 var models = new Dictionary<string, TreeNodeModel>();
                 // Creations/Modifications
                 UpdateDirectory(db, model, project, models);
@@ -60,8 +62,8 @@ namespace Scribs.Controllers {
                         }
                     }
                 }
+                project.Time = time;
                 project.Save();
-                return model;
             }
         }
 

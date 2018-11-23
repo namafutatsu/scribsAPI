@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -32,6 +33,14 @@ namespace Scribs {
             }
             set {
                 Node.SetAttributeValue("index", value);
+            }
+        }
+        public DateTime Time {
+            get {
+                return Node.Attribute("time") == null ? DateTime.MinValue : (DateTime)Node.Attribute("time");
+            }
+            set {
+                Node.SetAttributeValue("time", value);
             }
         }
         protected string Path => System.IO.Path.Combine(Project.User.Path, Url);

@@ -31,7 +31,8 @@ namespace Scribs.Controllers {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 var file = GetItem(user, model.Project, model.Key) as File;
-                return file.UploadTextAsync(model.Text);
+                var time = Utils.DateFromJs(model.Time);
+                return time > file.Time ? file.UploadTextAsync(model.Text, time) : null;
             }
         }
 
