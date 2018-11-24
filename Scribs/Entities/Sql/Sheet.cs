@@ -23,6 +23,6 @@ namespace Scribs {
         public int SheetTemplateId { get; set; }
         public SheetTemplate SheetTemplate { get; set; }
 
-        public ICollection<SheetField> SheetFields { get; set; }
+        public ICollection<SheetField> SheetFields { get; set; } = new List<SheetField>();
     }
 }

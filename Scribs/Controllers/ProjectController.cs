@@ -107,14 +107,15 @@ namespace Scribs.Controllers {
         }
 
         [HttpPost]
-        public async Task<ProjectModel> PostAsync(ProjectModel model) {
+        public async Task<ProjectModel> Post(ProjectModel model) {
             using (var db = new ScribsDbContext()) {
                 var user = GetUser(db);
                 int index = user.GetProjects().Count();
-                var project = new Project(user, model.Name);
+                var project = new Project(user, model.Name, false);
                 if (project.ExistsItem())
                     throw new System.Exception("This project already exists");
                 project.CreateItem();
+                project.Load();
                 project.Type = (Project.ProjectTypes)model.Type;
                 project.Description = model.Description;
                 project.Structure = model.Structure.Aggregate((a, b) => a + ";" + b);
@@ -122,47 +123,47 @@ namespace Scribs.Controllers {
                 project.Key = Guid.NewGuid().ToString();
 
                 // Basic sheet templates
-                //var charTemplate = SheetTemplate.Factory.CreateInstance(db);
-                //charTemplate.User = user;
-                //charTemplate.ProjectKey = project.Key;
-                //charTemplate.Name = "Characters";
-                //int i = 0;
-                //foreach (string label in new List<string> {
-                //    "Name",
-                //    "Description",
-                //    "Personality",
-                //    "Occupation",
-                //    "Objective",
-                //    "Habits",
-                //    "Conflicts",
-                //    "Relatives",
-                //    "Notes"
-                //}) {
-                //    var field = SheetTemplateField.Factory.CreateInstance(db);
-                //    field.Index = i++;
-                //    field.Label = label;
-                //    field.SheetTemplate = charTemplate;
-                //    //charTemplate.SheetTemplateFields.Add(field);
-                //}
-                //var setTemplate = SheetTemplate.Factory.CreateInstance(db);
-                //setTemplate.User = user;
-                //setTemplate.ProjectKey = project.Key;
-                //setTemplate.Name = "Settings";
-                //i = 0;
-                //foreach (string label in new List<string> {
-                //    "Name",
-                //    "Description",
-                //    "Sights",
-                //    "Sounds",
-                //    "Smells",
-                //    "Notes"
-                //}) {
-                //    var field = SheetTemplateField.Factory.CreateInstance(db);
-                //    field.Index = i++;
-                //    field.Label = label;
-                //    field.SheetTemplate = setTemplate;
-                //    //setTemplate.SheetTemplateFields.Add(field);
-                //}
+                var charTemplate = SheetTemplate.Factory.CreateInstance(db);
+                charTemplate.User = user;
+                charTemplate.ProjectKey = project.Key;
+                charTemplate.Name = "Characters";
+                int i = 0;
+                foreach (string label in new List<string> {
+                    "Name",
+                    "Description",
+                    "Personality",
+                    "Occupation",
+                    "Objective",
+                    "Habits",
+                    "Conflicts",
+                    "Relatives",
+                    "Notes"
+                }) {
+                    var field = SheetTemplateField.Factory.CreateInstance(db);
+                    field.Index = i++;
+                    field.Label = label;
+                    field.SheetTemplate = charTemplate;
+                    charTemplate.SheetTemplateFields.Add(field);
+                }
+                var setTemplate = SheetTemplate.Factory.CreateInstance(db);
+                setTemplate.User = user;
+                setTemplate.ProjectKey = project.Key;
+                setTemplate.Name = "Settings";
+                i = 0;
+                foreach (string label in new List<string> {
+                    "Name",
+                    "Description",
+                    "Sights",
+                    "Sounds",
+                    "Smells",
+                    "Notes"
+                }) {
+                    var field = SheetTemplateField.Factory.CreateInstance(db);
+                    field.Index = i++;
+                    field.Label = label;
+                    field.SheetTemplate = setTemplate;
+                    setTemplate.SheetTemplateFields.Add(field);
+                }
                 await db.SaveChangesAsync();
 
                 // Structure generation
@@ -172,16 +173,12 @@ namespace Scribs.Controllers {
                 var directory = project as Directory;
                 foreach (string folder in folders) {
                     string directoryName = folder.Substring(0, 1).ToUpper() + folder.Substring(1, folder.Length - 1) + " 1";
-                    directory = directory.GetDirectory(directoryName);
-                    directory.CreateItem();
-                    directory.Index = 0;
-                    directory.Key = Guid.NewGuid().ToString();
+                    directory = FileSystemItem.Create(directory, Directory.Type, directoryName, Guid.NewGuid().ToString(), 0) as Directory;
                 }
                 string fileName = file.Substring(0, 1).ToUpper() + file.Substring(1, file.Length - 1) + " 1";
-                var fileItem = directory.GetFile(fileName);
-                fileItem.CreateItem();
-                fileItem.Index = 0;
-                fileItem.Key = Guid.NewGuid().ToString();
+                FileSystemItem.Create(directory, File.Type, fileName, Guid.NewGuid().ToString(), 0);
+
+                project.Save();
 
                 return new ProjectModel {
                     Name = model.Name,

@@ -8,21 +8,24 @@ namespace Scribs {
     public class Project : Directory {
         public User User { get; set; }
         private Dictionary<string, FileSystemItem> contents = new Dictionary<string, FileSystemItem>();
-        public new string Path { get; private set; }
+        public override string Url => name;
         private string name;
         public string ContentsPath => System.IO.Path.Combine(Path, ".contents.xml");
+        public bool Loaded { get; private set; } = false;
 
         public Project(ScribsDbContext db, XElement xelement) : base(db, null, xelement) => throw new NotImplementedException();
 
-        public Project(User user, string name): base(user.db, null, null) {
+        public Project(User user, string name, bool load = true): base(user.db, null, null) {
             if (String.IsNullOrEmpty(name))
                 throw new KeyNotFoundException($"Project '{name}' not found for user '{user.Name}'");
             this.name = name;
             User = user;
             Project = this;
-            Path = System.IO.Path.Combine(user.Path, name);
-            Load();
+            if (load)
+                Load();
         }
+
+        public override string Name { get => name; set => base.Name = value; }
 
         private void GenerateTree() {
             Node = GenerateNodeDirectory(Path, name);
@@ -38,6 +41,7 @@ namespace Scribs {
                 Node = XElement.Load(ContentsPath);
             else
                 GenerateTree();
+            Loaded = true;
         }
 
         public void Save() => Node.Save(ContentsPath);

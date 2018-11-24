@@ -9,39 +9,23 @@ namespace Scribs {
         public Project Project { get; protected set; }
         public XElement Node { get; protected set; }
         public Directory Parent => Project.GetDirectory((string)Node.Ancestors().FirstOrDefault().Attribute("key"));
-        public string Url => Node?.AncestorsAndSelf().Select(o => (string)o.Attribute("name")).Reverse().Aggregate(System.IO.Path.Combine);
+        public virtual string Url => Node?.AncestorsAndSelf().Select(o => (string)o.Attribute("name")).Reverse().Aggregate(System.IO.Path.Combine);
         public ScribsDbContext Db { get; set; }
-        public string Name {
-            get {
-                return (string)Node.Attribute("name");
-            }
-            set {
-                Node.SetAttributeValue("name", value);
-            }
+        public virtual string Name {
+            get => (string)Node.Attribute("name");
+            set => Node.SetAttributeValue("name", value);
         }
         public string Key {
-            get {
-                return (string)Node.Attribute("key");
-            }
-            set {
-                Node.SetAttributeValue("key", value);
-            }
+            get => (string)Node.Attribute("key");
+            set => Node.SetAttributeValue("key", value);
         }
         public int Index {
-            get {
-                return (int)Node.Attribute("index");
-            }
-            set {
-                Node.SetAttributeValue("index", value);
-            }
+            get => (int)Node.Attribute("index");
+            set => Node.SetAttributeValue("index", value);
         }
         public DateTime Time {
-            get {
-                return Node.Attribute("time") == null ? DateTime.MinValue : (DateTime)Node.Attribute("time");
-            }
-            set {
-                Node.SetAttributeValue("time", value);
-            }
+            get => Node.Attribute("time") == null ? DateTime.MinValue : (DateTime)Node.Attribute("time");
+            set => Node.SetAttributeValue("time", value);
         }
         protected string Path => System.IO.Path.Combine(Project.User.Path, Url);
         public FileSystemItem(ScribsDbContext db, Project project, XElement node) {
