@@ -25,7 +25,7 @@ namespace Scribs.Models {
         }
 
         public static TreeNodeModel DirectoryToTreeItemModel(DirectoryModel o, string parentKey, string[] structure, int level) {
-            return new TreeNodeModel {
+            var model = new TreeNodeModel {
                 Key = o.Key,
                 ParentKey = parentKey,
                 Url = o.Url,
@@ -41,6 +41,16 @@ namespace Scribs.Models {
                     DirectoryToTreeItemModel(i as DirectoryModel, o.Key, structure, level + 1) :
                     FileModelUtils.FileToTreeItemModel(i as FileModel, o.Key, structure, level + 1)).OrderBy(i => i.Index)
             };
+            if (o.Name.StartsWith(".")) {
+                model.Intern = true;
+                model.label = model.label.Substring(1);
+                model.draggable = false;
+                if (model.label == "Drafts") {
+                    model.collapsedIcon = model.expandedIcon = "fa fa-pencil"; // fa fa-clipboard
+                    model.Structure = new string[] { "folder", "draft"};
+                }
+            }
+            return model;
         }
     }
 }

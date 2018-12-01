@@ -20,7 +20,10 @@ namespace Scribs.Controllers {
                 if (model.Read.HasValue && model.Read.Value)
                     templates = db.SheetTemplates.Where(o => o.ProjectKey == project.Key).ToList();
                 var result = await ProjectModelUtils.CreateProjectModelAsync(project, model.Read ?? false);
-                return ProjectModelUtils.ProjectToTreeItemModel(result);
+                var tree = ProjectModelUtils.ProjectToTreeItemModel(result);
+                tree.draggable = false;
+                tree.Intern = true;
+                return tree;
             }
         }
 
@@ -81,7 +84,7 @@ namespace Scribs.Controllers {
                         directory.Move(parent);
                     if (directory.Index != model.Index)
                         directory.Index = model.Index;
-                    if (directory.Name != model.label)
+                    if (!directory.Name.StartsWith(".") && directory.Name != model.label)
                         directory.Rename(model.label);
                 }
             }
@@ -101,7 +104,7 @@ namespace Scribs.Controllers {
                     file.Move(parent);
                 if (file.Index != model.Index)
                     file.Index = model.Index;
-                if (file.Name != model.label)
+                if (file.Name.StartsWith(".") && file.Name != model.label)
                     file.Rename(model.label);
             }
         }
@@ -165,6 +168,10 @@ namespace Scribs.Controllers {
                     setTemplate.SheetTemplateFields.Add(field);
                 }
                 await db.SaveChangesAsync();
+
+                // Drafts
+                var draftDirectory = FileSystemItem.Create(project, Directory.Type, ".Drafts", Guid.NewGuid().ToString(), 0) as Directory;
+                FileSystemItem.Create(draftDirectory, File.Type, "Draft 1", Guid.NewGuid().ToString(), 0);
 
                 // Structure generation
                 var folders = model.Structure.Length > 1 ? model.Structure.Take(model.Structure.Length - 1) :

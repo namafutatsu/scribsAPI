@@ -6,17 +6,27 @@ using System.Xml.Linq;
 namespace Scribs {
 
     public class File : FileSystemItem {
+        public static bool FromMd = false;
 
         public static string Type => "file";
 
         public File(ScribsDbContext db, Project project, XElement xelement) : base(db, project, xelement) { }
 
         public async Task<string> DownloadTextAsync() {
-            using (FileStream reader = System.IO.File.Open(Path, FileMode.Open)) {
-                var result = new byte[reader.Length];
-                await reader.ReadAsync(result, 0, (int)reader.Length);
-                reader.Close();
-                return System.Text.Encoding.UTF8.GetString(result);
+            using (FileStream stream = System.IO.File.Open(Path, FileMode.Open)) {
+                var result = new byte[stream.Length];
+                await stream.ReadAsync(result, 0, (int)stream.Length);
+                stream.Close();
+                string text = System.Text.Encoding.UTF8.GetString(result);
+                if (FromMd && Name.EndsWith(".md")) {
+                    using (TextReader reader = new StringReader(text)) {
+                        using (var writer = new StringWriter()) {
+                            CommonMark.CommonMarkConverter.Convert(reader, writer);
+                            text = writer.GetStringBuilder().ToString();
+                        }
+                    }
+                }
+                return text;
             }
         }
 

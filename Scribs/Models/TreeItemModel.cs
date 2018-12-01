@@ -12,6 +12,7 @@ namespace Scribs.Models {
         public int Level { get; set; }
         public bool IsLeaf { get; set; }
         public long Time { get; set; }
+        public bool Intern { get; set; }
         // From PrimeNg :
         public string label { get; set; }
         public string data { get; set; }
