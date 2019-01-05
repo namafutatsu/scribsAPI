@@ -4,7 +4,7 @@ using System.Linq;
 namespace Scribs {
 
     public partial class User: Entity<User> {
-        public string Path => System.IO.Path.Combine(FileSystemItem.STORAGE, Name);
+        public string Path => System.IO.Path.Combine(FileSystemItem.StorageDirectory, Name);
 
         public void CreateDirectory() {
             if (!System.IO.Directory.Exists(Path))

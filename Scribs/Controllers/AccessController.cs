@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -11,6 +12,7 @@ namespace Scribs.Controllers {
 
     [JwtAuthentication]
     public class AccessController : ApiController {
+        public static string LogFile => ConfigurationManager.AppSettings["StorageDirectory"];
 
         //[HttpGet]
         //public bool ValidateToken() {
@@ -41,7 +43,7 @@ namespace Scribs.Controllers {
                 .MinimumLevel.Debug()
                 .WriteTo.Debug()
                 .WriteTo.Console()
-                .WriteTo.File("D:\\Projects\\scribs\\ScribsAPI\\Scribs\\App_Data\\logfile.log", rollingInterval: RollingInterval.Day)
+                .WriteTo.File(LogFile, rollingInterval: RollingInterval.Day)
                 .CreateLogger();
         }
     }

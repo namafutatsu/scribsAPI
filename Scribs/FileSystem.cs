@@ -1,11 +1,12 @@
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Xml.Linq;
 
 namespace Scribs {
 
     public abstract class FileSystemItem {
-        public const string STORAGE = @"D:\Scribs-Storage";
+        public static string StorageDirectory => ConfigurationManager.AppSettings["StorageDirectory"];
         public Project Project { get; protected set; }
         public XElement Node { get; protected set; }
         public Directory Parent => Project.GetDirectory((string)Node.Ancestors().FirstOrDefault().Attribute("key"));
